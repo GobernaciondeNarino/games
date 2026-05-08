@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ñaño 3D</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #88c7ff; font-family: system-ui, sans-serif; color: #fff; }
+      #app { display: block; width: 100vw; height: 100vh; }
+      #hud {
+        position: fixed; left: 12px; top: 12px; padding: 10px 14px;
+        background: rgba(0,0,0,0.45); border-radius: 8px; font-size: 13px; line-height: 1.4;
+        pointer-events: none; user-select: none;
+      }
+      #hud b { color: #6fffd3; }
+      #loading {
+        position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+        background: #88c7ff; font-size: 22px; letter-spacing: 0.04em;
+      }
+      #loading.hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <canvas id="app"></canvas>
+    <div id="hud">
+      <div><b>WASD</b> moverse · <b>Shift</b> correr · <b>Espacio</b> saltar</div>
+      <div><b>Mouse arrastrar</b> orbitar cámara · <b>Rueda</b> zoom</div>
+      <div>Ñaño explora el laberinto. ¡Recarga para uno nuevo!</div>
+    </div>
+    <div id="loading">Cargando a Ñaño…</div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
