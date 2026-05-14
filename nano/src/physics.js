@@ -1,49 +1,44 @@
-import * as THREE from 'three';
-
 // Vertical physics + ground snapping using terrain.getHeightAt for cheap,
 // always-correct sampling (no raycast per frame). Step-up tolerance lets
-// the character climb low ledges (stairs).
+// the character climb low ledges (stairs). Horizontal collision is resolved
+// against the shared ColliderWorld (maze walls, props, NPCs).
 export class Physics {
-  constructor(terrain, maze) {
+  constructor(terrain, colliders) {
     this.terrain = terrain;
-    this.maze = maze;
+    this.colliders = colliders;
     this.gravity = -25;
     this.jumpV = 8.5;
     this.stepHeight = 0.55;
     this.radius = 0.45;
   }
 
-  // Returns ground info for the given XZ position, considering maze wall tops.
   groundAt(x, z) {
-    let y = this.terrain.getHeightAt(x, z);
-    // (Maze sits flat on terrain plot; no special floor adjustment needed.)
-    return y;
+    return this.terrain.getHeightAt(x, z);
   }
 
-  // Mutates state {position:Vector3, velocityY, grounded}. Inputs is move vector (xz).
-  update(state, dt, moveXZ, jumpPressed) {
+  // Mutates state {position, velocityY, grounded}. moveXZ is a velocity vector.
+  // `skip` is the player's own dynamic-collider token so it doesn't push itself.
+  update(state, dt, moveXZ, jumpPressed, skip = null) {
     const pos = state.position;
 
     // --- horizontal step with stair tolerance ---
     if (moveXZ.lengthSq() > 0) {
-      const next = { x: pos.x + moveXZ.x * dt, z: pos.z + moveXZ.z * dt };
-      // Maze collision (axis-aligned circle vs rects)
-      const tmp = new THREE.Vector3(next.x, pos.y, next.z);
-      this.maze.collideCircle(tmp, this.radius);
-      next.x = tmp.x; next.z = tmp.z;
-
-      const groundNext = this.groundAt(next.x, next.z);
+      const nextX = pos.x + moveXZ.x * dt;
+      const nextZ = pos.z + moveXZ.z * dt;
+      const groundNext = this.groundAt(nextX, nextZ);
       const dy = groundNext - pos.y;
       // Allow walking up if step is small enough OR descending freely.
       if (dy <= this.stepHeight + 0.01 || !state.grounded) {
-        pos.x = next.x;
-        pos.z = next.z;
+        pos.x = nextX;
+        pos.z = nextZ;
         if (state.grounded && dy <= this.stepHeight + 0.01 && dy > 0) {
-          // stair / slope step-up snap
-          pos.y = groundNext;
+          pos.y = groundNext; // stair / slope step-up snap
         }
       }
     }
+
+    // resolve against every collider in the world
+    this.colliders.resolveCircle(pos, this.radius, true, skip);
 
     // --- vertical integration ---
     state.velocityY += this.gravity * dt;
@@ -58,7 +53,6 @@ export class Physics {
       state.grounded = false;
     }
 
-    // Jump only when grounded.
     if (jumpPressed && state.grounded) {
       state.velocityY = this.jumpV;
       state.grounded = false;

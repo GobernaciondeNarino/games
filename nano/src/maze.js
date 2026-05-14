@@ -109,26 +109,11 @@ export class Maze {
     );
   }
 
-  // Resolve XZ collision against axis-aligned walls. Mutates pos.
-  // Returns true if any wall was contacted.
-  collideCircle(pos, radius) {
-    let touched = false;
+  // Register every wall as a static AABB collider in the shared world.
+  registerColliders(colliders) {
     for (const b of this.bounds) {
-      if (pos.y > b.topY + 0.05) continue;
-      const closestX = Math.max(b.minX, Math.min(pos.x, b.maxX));
-      const closestZ = Math.max(b.minZ, Math.min(pos.z, b.maxZ));
-      const dx = pos.x - closestX;
-      const dz = pos.z - closestZ;
-      const d2 = dx * dx + dz * dz;
-      if (d2 < radius * radius) {
-        const d = Math.sqrt(d2) || 0.0001;
-        const push = (radius - d) / d;
-        pos.x += dx * push;
-        pos.z += dz * push;
-        touched = true;
-      }
+      colliders.addAABB(b.minX, b.minZ, b.maxX, b.maxZ, b.topY);
     }
-    return touched;
   }
 }
 

@@ -1,27 +1,26 @@
 # Ñaño 3D
 
-Mini-juego web 3D con Three.js: la mascota **Ñaño** (robot turquesa) explora un
-escenario con lomas, escaleras y un **laberinto generado al azar en cada
-recarga**. Cámara orbital en tercera persona controlada con el mouse.
+Mini-juego web 3D con Three.js. La mascota **Ñaño** (robot bebé turquesa, estilo
+chibi/Funko Pop) explora un mundo con lomas, escaleras y un **laberinto generado
+al azar en cada recarga**. Recoge gemas brillantes para sumar puntos, juega en
+la cancha de fútbol, visita la zona de tecnología y se cruza con otros robots
+que deambulan libremente. Cámara orbital en tercera persona con el mouse.
 
 ## Despliegue en Plesk (sin terminal, sin instalación)
 
-Este proyecto es **100 % estático y "buildless"**: no necesita Node, ni npm, ni
-paso de compilación. Three.js está incluido localmente en `vendor/`.
+Proyecto **100 % estático y "buildless"**: no necesita Node, npm ni paso de
+compilación. Todo —incluido Three.js— se sube tal cual. El personaje y todo el
+escenario se construyen con primitivas de Three.js, **sin modelos externos**.
 
-1. Sube **toda la carpeta `nano/`** a tu hosting (por ejemplo a
-   `httpdocs/nano/` en Plesk).
+1. Sube **toda la carpeta `nano/`** a tu hosting (p. ej. `httpdocs/nano/`).
 2. Abre `https://tu-dominio/nano/` en el navegador. Listo.
 
 Requisitos del servidor (Plesk los cumple por defecto):
-- Servir archivos `.js` con tipo `text/javascript` / `application/javascript`.
-- Servir `.glb` como binario (cualquier `Content-Type` sirve; se descarga como
-  `arraybuffer`).
-- No se requiere ningún backend ni base de datos.
+- Servir `.js` como `text/javascript` / `application/javascript`.
+- No se requiere backend ni base de datos.
 
-> Para probar en local sin Plesk basta cualquier servidor estático, p. ej.
-> `python3 -m http.server` dentro de `nano/` y abrir `http://localhost:8000/`.
-> (No funciona con `file://` por las restricciones de los módulos ES.)
+> Para probar en local: `python3 -m http.server` dentro de `nano/` y abrir
+> `http://localhost:8000/`. (No funciona con `file://` por los módulos ES.)
 
 ## Controles
 
@@ -31,48 +30,65 @@ Requisitos del servidor (Plesk los cumple por defecto):
 - **Mouse arrastrar** — orbitar la cámara (yaw / pitch)
 - **Rueda del mouse** — zoom
 
+## Qué hay en el mundo
+
+- **Ñaño** — robot chibi construido con primitivas (cabeza grande, antena,
+  audífonos, camiseta "ÑAÑO", zapatillas). Animación procedural de idle, caminar,
+  correr y saltar.
+- **Laberinto** — recursive-backtracker, distinto en cada recarga, con muros
+  sólidos.
+- **Gemas brillantes** — esparcidas por el mundo y dentro del laberinto; al
+  tocarlas suman puntos (HUD arriba a la derecha).
+- **Cancha de fútbol** — fuera del laberinto, con líneas, arcos y un balón que
+  Ñaño puede patear.
+- **Zona de tecnología** — plaza con racks de servidores, una pantalla gigante
+  y un anillo holográfico, todo con luces emisivas.
+- **Robots NPC** — varios personajes de colores que caminan/corren a destinos
+  aleatorios y chocan con el mundo, contigo y entre ellos.
+- **Colisiones** — laberinto, árboles, rocas, arcos, props tecnológicos, NPCs y
+  jugador comparten un mismo sistema de colisión (`colliders.js`).
+
 ## Estructura
 
 ```
 nano/
-├── index.html              # importmap → vendor/, arranca src/main.js
+├── index.html              # importmap → vendor/three.module.js, HUD, arranca src/main.js
 ├── src/
-│   ├── main.js             # escena, luces, loop, suavizado de movimiento
-│   ├── terrain.js          # heightmap value-noise + escaleras + getHeightAt
-│   ├── maze.js             # laberinto recursive-backtracker + colisión
-│   ├── character.js        # GLTF + AnimationMixer + branding "ÑAÑO"
+│   ├── main.js             # escena, luces, loop, suavizado de movimiento, HUD
+│   ├── terrain.js          # heightmap value-noise + escaleras + zonas planas
+│   ├── maze.js             # laberinto recursive-backtracker
+│   ├── character.js        # Ñaño chibi con primitivas + ChibiRig (animación)
+│   ├── npc.js              # robots NPC con IA de deambulación + colisión
+│   ├── collectibles.js     # gemas brillantes + lógica de puntaje
+│   ├── zones.js            # cancha de fútbol + plaza tecnológica
+│   ├── colliders.js        # mundo de colisión compartido (AABB + círculos)
 │   ├── controls.js         # teclado + mouse drag
-│   ├── camera.js           # rig orbital tercera persona
-│   └── physics.js          # gravedad, salto, ground-snap, step-up
-├── vendor/                 # Three.js r160 incluido (sin CDN)
-│   ├── three.module.js
-│   └── addons/
-│       ├── loaders/GLTFLoader.js
-│       └── utils/BufferGeometryUtils.js
-└── models/
-    └── RobotExpressive.glb # personaje + animaciones (ejemplo oficial three.js)
+│   ├── camera.js           # rig orbital 3ª persona (anti-zoom + clamp de suelo)
+│   └── physics.js          # gravedad, salto, ground-snap, step-up, colisión
+└── vendor/
+    └── three.module.js     # Three.js r160 (sin CDN)
 ```
 
 ## Movimiento fluido
 
-- Velocidad horizontal con **aceleración/desaceleración** suave (arranques y
-  frenados sin saltos) — ver constantes `ACCEL` / `DECEL` en `src/main.js`.
-- La velocidad de reproducción de las animaciones **Walking/Running** se ajusta
-  a la velocidad real del personaje para evitar el "patinaje" de pies.
-- Crossfades con *warping* entre caminar y correr para mantener la cadencia.
-- `Jump` es `LoopOnce` con `clampWhenFinished`; rotación del modelo interpolada
-  hacia la dirección de avance.
+- Velocidad horizontal con **aceleración/desaceleración** suave (`ACCEL`/`DECEL`
+  en `src/main.js`).
+- Animación del personaje 100 % procedural en `ChibiRig` (`character.js`):
+  cadencia de pasos ligada a la velocidad real, balanceo de brazos y piernas,
+  rebote del cuerpo, inclinación al correr, encogido en el salto, respiración y
+  oscilación de antena en idle.
+- La cámara hace *pull-in* rápido y *ease-out* lento ante obstáculos para evitar
+  el "zoom raro" en pasillos, y nunca baja del nivel del suelo.
 
 ## Personalizar
 
-- **Personaje propio:** coloca tu `.glb` rigged (clips `Idle`, `Walking`,
-  `Running`, `Jump`) en `models/` y cambia la ruta en `NanoCharacter.load()`
-  (`src/character.js`). Si los clips tienen otros nombres, ajusta `_setState`.
-- **Laberinto:** parámetros `cols`, `rows`, `cellSize` en `src/maze.js`.
-- **Terreno:** `TERRAIN_SIZE`, `HEIGHT_SCALE` y la zona de escaleras en
-  `src/terrain.js`.
+- **Colores de Ñaño:** `NANO_COLORS` en `src/character.js`.
+- **NPCs:** número y paletas en `src/npc.js` (`NPCManager`, `PALETTES`).
+- **Gemas:** cantidad y valor en `src/collectibles.js`.
+- **Laberinto:** `cols`, `rows` en `src/maze.js`.
+- **Zonas:** `MAZE_REGION`, `SOCCER_REGION`, `TECH_REGION` en `src/terrain.js`.
 
 ## Inspiración
 
 - Demos de [SimonDev](https://simondev.io/demos/gamedev/).
-- [Three.js Animation System](https://threejs.org/docs/#manual/en/introduction/Animation-system).
+- Spec del personaje: `../nano-toy.md`.

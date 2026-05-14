@@ -33,8 +33,13 @@ const fbm = (x, y) => {
 export const TERRAIN_SIZE = 200;
 export const TERRAIN_SEG = 200;
 export const MAZE_REGION = { cx: 40, cz: 40, w: 60, h: 60, y: 0 };
-const STAIR_REGION = { cx: -30, cz: -10, w: 14, h: 30, baseY: 0, step: 0.5 };
+export const SOCCER_REGION = { cx: -48, cz: 30, w: 44, h: 30, y: 0.4 };
+export const TECH_REGION = { cx: 46, cz: -46, w: 34, h: 34, y: 0.6 };
+const STAIR_REGION = { cx: -30, cz: -42, w: 14, h: 30, baseY: 0, step: 0.5 };
 const HEIGHT_SCALE = 6;
+
+const inZone = (x, z, r) =>
+  Math.abs(x - r.cx) < r.w / 2 && Math.abs(z - r.cz) < r.h / 2;
 
 export class Terrain {
   constructor() {
@@ -52,7 +57,9 @@ export class Terrain {
     const c1 = new THREE.Color(0x3da35d); // grass
     const c2 = new THREE.Color(0x8c6a3a); // dirt
     const c3 = new THREE.Color(0xeaeaea); // stone
-    const c4 = new THREE.Color(0xc7a574); // path
+    const c4 = new THREE.Color(0xc7a574); // maze path
+    const c5 = new THREE.Color(0x2f9e44); // soccer pitch
+    const c6 = new THREE.Color(0x8a8f99); // tech plaza
 
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
@@ -60,22 +67,16 @@ export class Terrain {
       let y = fbm(x * 0.04, z * 0.04) * HEIGHT_SCALE;
 
       // Author stair zone: snap height to discrete steps along Z.
-      if (
-        Math.abs(x - STAIR_REGION.cx) < STAIR_REGION.w / 2 &&
-        Math.abs(z - STAIR_REGION.cz) < STAIR_REGION.h / 2
-      ) {
+      if (inZone(x, z, STAIR_REGION)) {
         const tz = (z - (STAIR_REGION.cz - STAIR_REGION.h / 2)) / STAIR_REGION.h;
         const steps = Math.floor(tz * 10);
         y = STAIR_REGION.baseY + steps * STAIR_REGION.step;
       }
 
-      // Flatten maze plot.
-      if (
-        Math.abs(x - MAZE_REGION.cx) < MAZE_REGION.w / 2 &&
-        Math.abs(z - MAZE_REGION.cz) < MAZE_REGION.h / 2
-      ) {
-        y = MAZE_REGION.y;
-      }
+      // Flatten authored plots.
+      if (inZone(x, z, MAZE_REGION)) y = MAZE_REGION.y;
+      else if (inZone(x, z, SOCCER_REGION)) y = SOCCER_REGION.y;
+      else if (inZone(x, z, TECH_REGION)) y = TECH_REGION.y;
 
       pos.setY(i, y);
 
@@ -85,21 +86,12 @@ export class Terrain {
 
       // vertex color by zone / height
       let col;
-      if (
-        Math.abs(x - MAZE_REGION.cx) < MAZE_REGION.w / 2 &&
-        Math.abs(z - MAZE_REGION.cz) < MAZE_REGION.h / 2
-      ) {
-        col = c4;
-      } else if (
-        Math.abs(x - STAIR_REGION.cx) < STAIR_REGION.w / 2 &&
-        Math.abs(z - STAIR_REGION.cz) < STAIR_REGION.h / 2
-      ) {
-        col = c3;
-      } else if (y > 3) {
-        col = c2;
-      } else {
-        col = c1;
-      }
+      if (inZone(x, z, MAZE_REGION)) col = c4;
+      else if (inZone(x, z, SOCCER_REGION)) col = c5;
+      else if (inZone(x, z, TECH_REGION)) col = c6;
+      else if (inZone(x, z, STAIR_REGION)) col = c3;
+      else if (y > 3) col = c2;
+      else col = c1;
       colors[i * 3 + 0] = col.r;
       colors[i * 3 + 1] = col.g;
       colors[i * 3 + 2] = col.b;
