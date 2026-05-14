@@ -3,7 +3,7 @@
 // fogata ritual central, petroglifos en el suelo, tótems, estrellas y cartel.
 
 import * as THREE from 'three';
-import { rand, makeSignpost } from './common.js';
+import { rand, makeSignpost } from './common.js?v=4';
 
 export function decoratePueblos(level, ctx) {
   const { group, obstacles } = ctx;

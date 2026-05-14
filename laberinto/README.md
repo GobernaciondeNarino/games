@@ -16,13 +16,26 @@ El juego usa **módulos ES** (`<script type="module">`). El navegador carga
 cada archivo `.js` por separado: **si falta UN solo archivo, o uno está
 desactualizado, el juego se queda en "Cargando el territorio nariñense…"**.
 
-Si ves en la consola un error tipo
-`does not provide an export named 'XXXX'`, significa que el servidor tiene
-una versión **vieja** de ese archivo. Solución:
+### Cache-busting (`?v=N`)
+
+Para evitar que el navegador o el servidor sirvan archivos viejos en caché,
+**todos los imports llevan un parámetro de versión** `?v=4`
+(p. ej. `import ... from './state.js?v=4'`) y lo mismo `index.html` con
+`main.js?v=4` y `styles.css?v=4`.
+
+> **Cada vez que modifiques los archivos JS/CSS, sube el número de versión
+> en TODOS los archivos a la vez** (`?v=4` → `?v=5`, etc.). Así el navegador
+> está obligado a descargar la versión nueva. El número debe ser el mismo en
+> todos los archivos para que los módulos compartan una sola instancia.
+
+### Si aún ves un error de módulo
+
+Si en la consola aparece `does not provide an export named 'XXXX'`, el
+servidor tiene una versión vieja de ese archivo. Solución:
 
 1. Sube **todos** los archivos de la lista de abajo, respetando las carpetas
    (`css/`, `js/`, `js/scenarios/`).
-2. Borra la caché del navegador o recarga con **Ctrl + F5**.
+2. Sube el número `?v=N` o borra la caché del navegador (**Ctrl + F5**).
 3. Verifica que `js/state.js` contenga al final:
    ```js
    export const POINTS_PER_HINT = 2;
@@ -73,13 +86,19 @@ dentro de `/laberinto`.
 
 ## Cómo jugar
 
+En la pantalla inicial hay un interruptor **"Cámara orbital con mouse"**:
+
+- **Desactivado (por defecto)**: cámara fija de seguimiento. El mouse no afecta
+  la cámara — más cómodo y estable para la mayoría de jugadores.
+- **Activado**: permite girar libremente el escenario con el mouse.
+
 | Acción | Teclado / Mouse | Táctil |
 |--------|-----------------|--------|
 | Moverse | `W A S D` o flechas | Joystick virtual (abajo izquierda) |
 | Saltar | `Espacio` | Botón ▲ (abajo derecha) |
-| Girar la cámara alrededor del escenario | Arrastrar con el mouse | Arrastrar un dedo sobre la escena |
-| Acercar / alejar (zoom) | Rueda del mouse | Pellizcar con dos dedos |
-| Recentrar la cámara detrás del jugador | Tecla `C` | — |
+| Girar la cámara *(solo si la orbital está activada)* | Arrastrar con el mouse | Arrastrar un dedo sobre la escena |
+| Acercar / alejar — zoom *(solo orbital)* | Rueda del mouse | Pellizcar con dos dedos |
+| Recentrar la cámara *(solo orbital)* | Tecla `C` | — |
 
 Objetivo de cada mundo:
 1. Encuentra la **entrada verdadera** del laberinto (hay 2 entradas, solo una
@@ -102,8 +121,9 @@ Puntuación: **+2** por esmeralda, **+10** por respuesta correcta.
   del Cumbal, las carrozas monumentales del Carnaval, las chozas sobre
   pilotes del pueblo Awá, los colibríes de Río Ñambí, el arco del Morro y los
   palafitos de Tumaco, y el círculo de monolitos de los Pueblos Ancestrales.
-- **Cámara orbital con mouse**: se puede girar libremente alrededor del
-  escenario, hacer zoom y recentrar.
+- **Cámara orbital con mouse opcional**: interruptor en la pantalla inicial
+  para activarla/desactivarla; permite girar el escenario, hacer zoom y
+  recentrar. Desactivada por defecto.
 - **Movimiento relativo a la cámara**: el personaje avanza hacia donde mira
   la cámara, no en una dirección fija.
 - **Brújula** en el HUD y **pantalla de transición animada** entre mundos.
@@ -117,8 +137,15 @@ Puntuación: **+2** por esmeralda, **+10** por respuesta correcta.
 - **Fix arranque**: `emeralds.js` y `game.js` importaban `POINTS_PER_HINT` /
   `POINTS_PER_CORRECT_ANSWER` desde `state.js`, pero estaban definidos en
   `levels.js`. Se movieron a `state.js` para que la cadena de módulos cargue.
+- **Cache-busting `?v=N`**: todos los imports y los enlaces de `index.html`
+  llevan versión, para que el navegador/servidor no sirvan archivos viejos
+  en caché (causa de que el error de `state.js` persistiera tras subir el fix).
+- **Cámara orbital opcional**: ahora arranca desactivada; interruptor en la
+  pantalla inicial para activarla cuando se quiera.
 - Se quitaron los `<link rel="preload">` de los GLB (generaban warnings de
   consola); la precarga real la hace `preloadCharacters()` en `player.js`.
+- Detector de fallo de carga en `index.html`: si los módulos no arrancan,
+  muestra un mensaje claro en vez del spinner infinito.
 - Limpieza de imports sin usar y del animador de agua.
 
 ---

@@ -286,6 +286,61 @@ canvas.grabbing { cursor: grabbing; }
 .char-card h3 { margin-top: 10px; color: var(--gn-dorado); font-size: 18px; }
 .char-card span { font-size: 13px; opacity: 0.85; }
 
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(232,160,32,0.35);
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 24px;
+  max-width: 460px;
+  text-align: left;
+}
+.switch { position: relative; display: inline-block; flex-shrink: 0; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch-track {
+  display: block;
+  width: 46px; height: 26px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 14px;
+  transition: background 0.2s;
+}
+.switch-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  background: var(--white);
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.switch input:checked + .switch-track {
+  background: var(--green-bright);
+  border-color: var(--green-bright);
+}
+.switch input:checked + .switch-track .switch-thumb {
+  transform: translateX(20px);
+}
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--gn-dorado);
+  outline-offset: 2px;
+}
+.switch-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.switch-label small {
+  display: block;
+  font-weight: 400;
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 2px;
+}
+
 .btn {
   background: var(--accent-coral); color: var(--white);
   border: none; padding: 14px 36px; border-radius: 30px;

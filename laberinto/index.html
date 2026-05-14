@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="./css/styles.css">
+<link rel="stylesheet" href="./css/styles.css?v=4">
 </head>
 <body>
   <div id="app">
@@ -34,6 +34,17 @@
           <h3>Wawa Killa</h3>
           <span>Hija de la luna</span>
         </div>
+      </div>
+
+      <div class="settings-row">
+        <label class="switch">
+          <input type="checkbox" id="toggle-orbit" />
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+        <span class="switch-label">
+          Cámara orbital con mouse
+          <small>Actívala para girar el escenario arrastrando el mouse. Desactivada: cámara fija de seguimiento.</small>
+        </span>
       </div>
 
       <button class="btn" id="btn-start" disabled>Comenzar aventura</button>
@@ -113,8 +124,8 @@
     </div>
 
     <div id="hud-tip" class="hidden">
-      <span class="kb-tip"><kbd>WASD</kbd> mover · <kbd>Espacio</kbd> saltar · <kbd>Mouse</kbd> orbitar · <kbd>Rueda</kbd> zoom · <kbd>C</kbd> centrar</span>
-      <span class="touch-tip">Joystick para moverte · Arrastra con dos dedos para orbitar · Pellizca para zoom</span>
+      <span class="kb-tip" id="kb-tip-text"><kbd>WASD</kbd> mover · <kbd>Espacio</kbd> saltar</span>
+      <span class="touch-tip" id="touch-tip-text">Joystick para moverte · Botón ▲ para saltar</span>
     </div>
 
     <div id="minimap" class="hidden">
@@ -189,7 +200,7 @@
     }, 9000);
   </script>
 
-  <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/main.js?v=4"></script>
 
 </body>
 </html>

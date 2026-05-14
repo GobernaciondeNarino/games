@@ -1,25 +1,44 @@
 // Punto de entrada: arranque, selección de personaje, bucle de animación
 // y orquestación de todos los módulos.
 
-import { state } from './state.js';
-import { CHARACTERS, LEVELS } from './levels.js';
+import { state } from './state.js?v=4';
+import { CHARACTERS, LEVELS } from './levels.js?v=4';
 import {
   initWorld, scene, renderer, clock, levelGroup,
   buildLevel, animateDecoration, onResize, portal
-} from './world.js';
-import { initCamera, camera, updateCamera, updateCompass } from './camera.js';
+} from './world.js?v=4';
+import {
+  initCamera, camera, updateCamera, updateCompass,
+  setOrbitEnabled, isOrbitEnabled
+} from './camera.js?v=4';
 import {
   preloadCharacters, loadCharacterGLB, buildPlayerGLB,
   player, playerInner, jumpState, updatePlayer
-} from './player.js';
-import { initControls } from './controls.js';
-import { checkEmeraldPickup, animateEmeralds, activeEmeralds } from './emeralds.js';
-import { triggerQuestion } from './game.js';
+} from './player.js?v=4';
+import { initControls } from './controls.js?v=4';
+import { checkEmeraldPickup, animateEmeralds, activeEmeralds } from './emeralds.js?v=4';
+import { triggerQuestion } from './game.js?v=4';
 import {
   updateHUD, updateTimeOnly, showToast, showCameraHint
-} from './hud.js';
+} from './hud.js?v=4';
 
 let bobTime = 0;
+
+// Ajusta el texto de ayuda del HUD según el estado de la cámara orbital.
+function updateTipText() {
+  const kb = document.getElementById('kb-tip-text');
+  const touch = document.getElementById('touch-tip-text');
+  if (kb) {
+    kb.innerHTML = isOrbitEnabled()
+      ? '<kbd>WASD</kbd> mover · <kbd>Espacio</kbd> saltar · <kbd>Mouse</kbd> orbitar · <kbd>Rueda</kbd> zoom · <kbd>C</kbd> centrar'
+      : '<kbd>WASD</kbd> mover · <kbd>Espacio</kbd> saltar · <kbd>C</kbd>ámara orbital: desactivada';
+  }
+  if (touch) {
+    touch.textContent = isOrbitEnabled()
+      ? 'Joystick para moverte · Arrastra un dedo para orbitar · Pellizca para zoom'
+      : 'Joystick para moverte · Botón ▲ para saltar';
+  }
+}
 
 function init() {
   // Señala al detector de fallo de index.html que los módulos sí cargaron.
@@ -41,6 +60,17 @@ function init() {
   });
 
   document.getElementById('btn-start').addEventListener('click', onStart);
+
+  // Interruptor de cámara orbital (arranca DESHABILITADO).
+  const orbitToggle = document.getElementById('toggle-orbit');
+  if (orbitToggle) {
+    orbitToggle.checked = false;
+    setOrbitEnabled(false);
+    orbitToggle.addEventListener('change', () => {
+      setOrbitEnabled(orbitToggle.checked);
+      updateTipText();
+    });
+  }
 
   preloadCharacters();
   animate();
@@ -130,8 +160,10 @@ async function onStart() {
     state.playing = true;
     state.canMove = true;
     updateHUD();
+    updateTipText();
     showToast(LEVELS[0].name, LEVELS[0].subtitle);
-    showCameraHint();
+    // La pista de cámara solo tiene sentido si la cámara orbital está activa.
+    if (isOrbitEnabled()) showCameraHint();
 
     setTimeout(() => {
       const tip = document.getElementById('hud-tip');

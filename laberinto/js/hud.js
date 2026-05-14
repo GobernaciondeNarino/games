@@ -1,8 +1,8 @@
 // HUD y overlays: marcadores, toasts, pantalla de pregunta, transiciones
 // entre mundos y pantallas de victoria/derrota.
 
-import { state } from './state.js';
-import { LEVELS } from './levels.js';
+import { state } from './state.js?v=4';
+import { LEVELS } from './levels.js?v=4';
 
 export function getElapsedMs() {
   if (!state.startTime) return 0;

@@ -2,9 +2,9 @@
 // Cada una revela una pista del lugar turístico y suma puntos.
 
 import * as THREE from 'three';
-import { state, POINTS_PER_HINT } from './state.js';
-import { HINT_LIBRARY } from './levels.js';
-import { showHintToast, updateHUD } from './hud.js';
+import { state, POINTS_PER_HINT } from './state.js?v=4';
+import { HINT_LIBRARY } from './levels.js?v=4';
+import { showHintToast, updateHUD } from './hud.js?v=4';
 
 export let activeEmeralds = [];
 

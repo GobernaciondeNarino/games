@@ -4,7 +4,7 @@
 // flujos de lava petrificada y cartel turístico.
 
 import * as THREE from 'three';
-import { rand, addRocks, makeSignpost, makeCasita } from './common.js';
+import { rand, addRocks, makeSignpost, makeCasita } from './common.js?v=4';
 
 export function decorateGaleras(level, ctx) {
   const { group, obstacles } = ctx;

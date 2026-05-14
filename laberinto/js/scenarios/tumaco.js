@@ -4,7 +4,7 @@
 // gaviotas, redes de pesca y cartel turístico.
 
 import * as THREE from 'three';
-import { rand, makePalm, makeSignpost } from './common.js';
+import { rand, makePalm, makeSignpost } from './common.js?v=4';
 
 export function decorateTumaco(level, ctx) {
   const { group, obstacles } = ctx;

@@ -4,7 +4,7 @@
 // manchas de nieve, copos cayendo y cartel turístico.
 
 import * as THREE from 'three';
-import { rand, makeSignpost } from './common.js';
+import { rand, makeSignpost } from './common.js?v=4';
 
 export function decorateCumbal(level, ctx) {
   const { group, obstacles } = ctx;

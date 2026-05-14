@@ -4,7 +4,7 @@
 // y cartel turístico.
 
 import * as THREE from 'three';
-import { rand, makeTree, makeSignpost } from './common.js';
+import { rand, makeTree, makeSignpost } from './common.js?v=4';
 
 export function decorateAwa(level, ctx) {
   const { group, obstacles } = ctx;

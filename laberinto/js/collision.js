@@ -2,8 +2,8 @@
 // (terreno o techo de muro) y lo empuja fuera de obstáculos laterales.
 
 import * as THREE from 'three';
-import { PLAYER_RADIUS } from './state.js';
-import { obstacles, groundHeightAt } from './world.js';
+import { PLAYER_RADIUS } from './state.js?v=4';
+import { obstacles, groundHeightAt } from './world.js?v=4';
 
 export const collisionState = { currentFloorY: 0 };
 

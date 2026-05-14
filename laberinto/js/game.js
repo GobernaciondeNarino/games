@@ -1,13 +1,13 @@
 // Flujo del juego: preguntas, avance de nivel, victoria y derrota.
 
-import { state, POINTS_PER_CORRECT_ANSWER } from './state.js';
-import { LEVELS } from './levels.js';
-import { buildLevel } from './world.js';
-import { player, playerInner, jumpState } from './player.js';
+import { state, POINTS_PER_CORRECT_ANSWER } from './state.js?v=4';
+import { LEVELS } from './levels.js?v=4';
+import { buildLevel } from './world.js?v=4';
+import { player, playerInner, jumpState } from './player.js?v=4';
 import {
   updateHUD, showToast, showTransition, showQuestion,
   renderAnswerFeedback, hideQuestion, showWin, showLose, getElapsedMs
-} from './hud.js';
+} from './hud.js?v=4';
 
 // Baraja las opciones (Fisher-Yates) y recalcula el índice correcto.
 function shuffleQuestion(original) {

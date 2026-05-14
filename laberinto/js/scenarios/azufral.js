@@ -4,7 +4,7 @@
 // rocas volcánicas, frailejones de páramo y cartel turístico.
 
 import * as THREE from 'three';
-import { rand, addRocks, makeSignpost } from './common.js';
+import { rand, addRocks, makeSignpost } from './common.js?v=4';
 
 export function decorateAzufral(level, ctx) {
   const { group, obstacles } = ctx;

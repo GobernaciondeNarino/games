@@ -4,7 +4,7 @@
 // juncos y aves acuáticas, montañas verdes de fondo.
 
 import * as THREE from 'three';
-import { rand, makeTree, addReeds, makeSignpost, makeCasita } from './common.js';
+import { rand, makeTree, addReeds, makeSignpost, makeCasita } from './common.js?v=4';
 
 export function decorateCocha(level, ctx) {
   const { group, obstacles } = ctx;

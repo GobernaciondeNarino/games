@@ -3,7 +3,7 @@
 // tarima de murga, confeti cayendo, faroles de colores, tribunas y cartel.
 
 import * as THREE from 'three';
-import { rand, makeSignpost } from './common.js';
+import { rand, makeSignpost } from './common.js?v=4';
 
 const FIESTA = [0xE84393, 0x9C27B0, 0xFFC107, 0x6CC04A, 0x00AEEF, 0xFF7043, 0x7E57C2];
 

@@ -3,10 +3,10 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { CHARACTERS } from './levels.js';
-import { state, GRAVITY, JUMP_VELOCITY } from './state.js';
-import { getCameraYaw } from './camera.js';
-import { resolveCollisions, collisionState } from './collision.js';
+import { CHARACTERS } from './levels.js?v=4';
+import { state, GRAVITY, JUMP_VELOCITY } from './state.js?v=4';
+import { getCameraYaw } from './camera.js?v=4';
+import { resolveCollisions, collisionState } from './collision.js?v=4';
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.crossOrigin = 'anonymous';

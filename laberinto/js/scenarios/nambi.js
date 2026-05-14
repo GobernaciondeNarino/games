@@ -4,7 +4,7 @@
 // niebla flotante y cartel turístico.
 
 import * as THREE from 'three';
-import { rand, makeTree, makeSignpost } from './common.js';
+import { rand, makeTree, makeSignpost } from './common.js?v=4';
 
 const HUMMING = [0xE84393, 0x26C6DA, 0xFFC107, 0x9C27B0, 0xFF7043, 0x6CC04A];
 

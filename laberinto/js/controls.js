@@ -1,8 +1,8 @@
 // Controles: teclado (WASD/flechas, salto, recentrar cámara) y
 // joystick virtual + botón de salto para dispositivos táctiles.
 
-import { setKey, doJump, joystick, player } from './player.js';
-import { recenterCamera } from './camera.js';
+import { setKey, doJump, joystick, player } from './player.js?v=4';
+import { recenterCamera } from './camera.js?v=4';
 
 export const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 

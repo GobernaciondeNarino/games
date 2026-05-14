@@ -1,24 +1,34 @@
-// Cámara orbital de tercera persona.
-// El mouse (arrastrar) gira alrededor del escenario; la rueda hace zoom.
-// En táctil: un dedo sobre el lienzo orbita, dos dedos hacen pinch-zoom.
-// Tecla C recentra la cámara detrás del jugador.
+// Cámara de tercera persona.
+// Modo orbital (opcional, se activa con el interruptor de la pantalla inicial):
+//   - Mouse arrastrar: gira alrededor del escenario
+//   - Rueda: zoom · En táctil: un dedo orbita, dos dedos hacen pinch-zoom
+//   - Tecla C: recentra la cámara
+// Modo fijo (por defecto): cámara de seguimiento estable detrás del jugador,
+// el mouse no afecta la cámara.
 
 import * as THREE from 'three';
 
 export let camera;
 
+// La cámara orbital con mouse arranca DESHABILITADA por defecto.
+let orbitEnabled = false;
+
+const DEFAULT_YAW = 0;
+const DEFAULT_PITCH = 0.42;
+const DEFAULT_DIST = 14;
+
 const orbit = {
-  yaw: 0,
-  pitch: 0.42,
-  distance: 14,
+  yaw: DEFAULT_YAW,
+  pitch: DEFAULT_PITCH,
+  distance: DEFAULT_DIST,
   minPitch: 0.08,
   maxPitch: 1.30,
   minDist: 6,
   maxDist: 30,
   target: new THREE.Vector3(0, 1.4, 0),
-  desiredYaw: 0,
-  desiredPitch: 0.42,
-  desiredDist: 14
+  desiredYaw: DEFAULT_YAW,
+  desiredPitch: DEFAULT_PITCH,
+  desiredDist: DEFAULT_DIST
 };
 
 const ROT_SENS = 0.005;
@@ -41,16 +51,43 @@ export function initCamera(canvas) {
   canvas.addEventListener('pointerleave', onPointerUp);
   canvas.addEventListener('wheel', onWheel, { passive: false });
 
+  applyCursor();
   return camera;
 }
 
+// Activa o desactiva la cámara orbital con mouse.
+export function setOrbitEnabled(enabled) {
+  orbitEnabled = !!enabled;
+  if (!orbitEnabled) {
+    // Volver a la vista fija estable
+    pointers.clear();
+    lastPinchDist = 0;
+    orbit.desiredYaw = DEFAULT_YAW;
+    orbit.desiredPitch = DEFAULT_PITCH;
+    orbit.desiredDist = DEFAULT_DIST;
+  }
+  applyCursor();
+}
+
+export function isOrbitEnabled() {
+  return orbitEnabled;
+}
+
+function applyCursor() {
+  if (!canvasEl) return;
+  canvasEl.style.cursor = orbitEnabled ? 'grab' : 'default';
+  if (!orbitEnabled) canvasEl.classList.remove('grabbing');
+}
+
 function onPointerDown(e) {
+  if (!orbitEnabled) return;
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   canvasEl.classList.add('grabbing');
   try { canvasEl.setPointerCapture(e.pointerId); } catch (_) {}
 }
 
 function onPointerMove(e) {
+  if (!orbitEnabled) return;
   const prev = pointers.get(e.pointerId);
   if (!prev) return;
 
@@ -83,10 +120,11 @@ function onPointerMove(e) {
 function onPointerUp(e) {
   pointers.delete(e.pointerId);
   if (pointers.size < 2) lastPinchDist = 0;
-  if (pointers.size === 0) canvasEl.classList.remove('grabbing');
+  if (pointers.size === 0 && canvasEl) canvasEl.classList.remove('grabbing');
 }
 
 function onWheel(e) {
+  if (!orbitEnabled) return;
   e.preventDefault();
   orbit.desiredDist = THREE.MathUtils.clamp(
     orbit.desiredDist + e.deltaY * ZOOM_SENS * orbit.desiredDist,
@@ -99,15 +137,23 @@ export function getCameraYaw() {
   return orbit.yaw;
 }
 
-// Recentra la cámara detrás del jugador (mirando hacia donde mira el jugador).
+// Recentra la cámara detrás del jugador (solo tiene efecto en modo orbital).
 export function recenterCamera(player) {
+  if (!orbitEnabled) return;
   if (player) orbit.desiredYaw = player.rotation.y;
-  orbit.desiredPitch = 0.42;
-  orbit.desiredDist = 14;
+  orbit.desiredPitch = DEFAULT_PITCH;
+  orbit.desiredDist = DEFAULT_DIST;
 }
 
 export function updateCamera(player) {
   if (!player) return;
+
+  // En modo fijo, mantener la cámara anclada a los valores por defecto.
+  if (!orbitEnabled) {
+    orbit.desiredYaw = DEFAULT_YAW;
+    orbit.desiredPitch = DEFAULT_PITCH;
+    orbit.desiredDist = DEFAULT_DIST;
+  }
 
   // Suavizado de los valores orbitales
   orbit.yaw += (orbit.desiredYaw - orbit.yaw) * 0.18;

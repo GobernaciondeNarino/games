@@ -2,10 +2,10 @@
 // y animación de la decoración (humo, flotantes, agua, nieve, etc.).
 
 import * as THREE from 'three';
-import { buildSky, applySkyConfig } from './sky.js';
-import { buildMaze } from './maze.js';
-import { decorateLevel } from './scenarios/index.js';
-import { placeEmeraldHints, resetEmeralds } from './emeralds.js';
+import { buildSky, applySkyConfig } from './sky.js?v=4';
+import { buildMaze } from './maze.js?v=4';
+import { decorateLevel } from './scenarios/index.js?v=4';
+import { placeEmeraldHints, resetEmeralds } from './emeralds.js?v=4';
 
 export let scene, renderer, clock;
 export let levelGroup;
