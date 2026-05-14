@@ -8,18 +8,31 @@ que deambulan libremente. Cámara orbital en tercera persona con el mouse.
 
 ## Despliegue en Plesk (sin terminal, sin instalación)
 
-Proyecto **100 % estático y "buildless"**: no necesita Node, npm ni paso de
-compilación. Todo —incluido Three.js— se sube tal cual. El personaje y todo el
-escenario se construyen con primitivas de Three.js, **sin modelos externos**.
+**Solo hay 2 archivos que subir** y el juego es 100 % estático (sin Node, npm,
+ni paso de compilación):
 
-1. Sube **toda la carpeta `nano/`** a tu hosting (p. ej. `httpdocs/nano/`),
-   manteniendo la estructura `src/` y `vendor/`. Sube **todos** los archivos
-   juntos (no mezcles versiones).
-2. Abre `https://tu-dominio/nano/` en el navegador. Listo.
+```
+nano/
+├── index.html              ← TODO el código del juego está aquí dentro
+└── vendor/
+    └── three.module.js     ← la librería Three.js r160 (nunca cambia)
+```
 
-Los módulos importan Three.js por **ruta relativa**
-(`../vendor/three.module.js`) — no hay importmap ni dependencias de CDN, así
-que no puede fallar por una subida parcial.
+1. Sube la carpeta `nano/` completa a tu hosting (p. ej. `httpdocs/nano/`),
+   conservando `vendor/three.module.js`.
+2. Abre `https://tu-dominio/nano/` en el navegador.
+
+**Por qué es a prueba de fallos:** todo el código del juego vive _dentro_ de
+`index.html` (un único `<script type="module">`). El único recurso externo es
+`vendor/three.module.js`, que es la librería y **nunca se modifica**. Así que no
+existen archivos del juego que se puedan desincronizar entre sí: si actualizas
+`index.html`, ya está todo actualizado.
+
+> Si al abrirlo ves "No se pudo cargar vendor/three.module.js", falta subir la
+> carpeta `vendor/`.
+>
+> Si tras actualizar sigues viendo la versión vieja, es la **caché del
+> navegador**: recarga con `Ctrl + Shift + R` (o `Cmd + Shift + R`).
 
 Requisitos del servidor (Plesk los cumple por defecto):
 - Servir `.js` como `text/javascript` / `application/javascript`.
@@ -52,47 +65,24 @@ Requisitos del servidor (Plesk los cumple por defecto):
 - **Robots NPC** — varios personajes de colores que caminan/corren a destinos
   aleatorios y chocan con el mundo, contigo y entre ellos.
 - **Colisiones** — laberinto, árboles, rocas, arcos, props tecnológicos, NPCs y
-  jugador comparten un mismo sistema de colisión (`colliders.js`).
+  jugador comparten un mismo sistema de colisión.
 
-## Estructura
+## Estructura interna de `index.html`
 
-```
-nano/
-├── index.html              # HUD + favicon inline, arranca src/main.js
-├── src/
-│   ├── main.js             # escena, luces, loop, suavizado de movimiento, HUD
-│   ├── terrain.js          # heightmap value-noise + escaleras + zonas planas
-│   ├── maze.js             # laberinto recursive-backtracker
-│   ├── character.js        # Ñaño chibi con primitivas + ChibiRig (animación)
-│   ├── npc.js              # robots NPC con IA de deambulación + colisión
-│   ├── collectibles.js     # gemas brillantes + lógica de puntaje
-│   ├── zones.js            # cancha de fútbol + plaza tecnológica
-│   ├── colliders.js        # mundo de colisión compartido (AABB + círculos)
-│   ├── controls.js         # teclado + mouse drag
-│   ├── camera.js           # rig orbital 3ª persona (anti-zoom + clamp de suelo)
-│   └── physics.js          # gravedad, salto, ground-snap, step-up, colisión
-└── vendor/
-    └── three.module.js     # Three.js r160 (sin CDN)
-```
-
-## Movimiento fluido
-
-- Velocidad horizontal con **aceleración/desaceleración** suave (`ACCEL`/`DECEL`
-  en `src/main.js`).
-- Animación del personaje 100 % procedural en `ChibiRig` (`character.js`):
-  cadencia de pasos ligada a la velocidad real, balanceo de brazos y piernas,
-  rebote del cuerpo, inclinación al correr, encogido en el salto, respiración y
-  oscilación de antena en idle.
-- La cámara hace *pull-in* rápido y *ease-out* lento ante obstáculos para evitar
-  el "zoom raro" en pasillos, y nunca baja del nivel del suelo.
+El `<script type="module">` está dividido en secciones comentadas, en orden de
+dependencia: `colliders` → `controls` → `physics` → `terrain` → `maze` →
+`character` (Ñaño chibi + `ChibiRig`) → `npc` → `camera` → `collectibles` →
+`zones` (fútbol + tecnología) → `main` (escena, luces, loop).
 
 ## Personalizar
 
-- **Colores de Ñaño:** `NANO_COLORS` en `src/character.js`.
-- **NPCs:** número y paletas en `src/npc.js` (`NPCManager`, `PALETTES`).
-- **Gemas:** cantidad y valor en `src/collectibles.js`.
-- **Laberinto:** `cols`, `rows` en `src/maze.js`.
-- **Zonas:** `MAZE_REGION`, `SOCCER_REGION`, `TECH_REGION` en `src/terrain.js`.
+Todo se edita dentro de `index.html`:
+
+- **Colores de Ñaño:** la constante `NANO_COLORS`.
+- **NPCs:** número en `new NPCManager(terrain, 9)` y paletas en `PALETTES`.
+- **Gemas:** cantidad en `new Collectibles(terrain, 64)` y valor en `value: 10`.
+- **Laberinto:** `cols`, `rows` en la clase `Maze`.
+- **Zonas:** `MAZE_REGION`, `SOCCER_REGION`, `TECH_REGION`.
 
 ## Inspiración
 
