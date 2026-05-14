@@ -191,11 +191,9 @@ export function animateDecoration(dt, bobTime) {
       o.rotation[ud.spin.axis] += dt * ud.spin.speed;
     }
     if (ud.water) {
+      if (ud.water.baseY === undefined) ud.water.baseY = o.position.y;
       ud.water.off += dt;
-      o.position.y = (o.position.y) + Math.sin(ud.water.off * 1.5) * 0.0008;
-      if (o.material.emissiveIntensity !== undefined && o.material.emissive) {
-        // sutil respiración del brillo del agua
-      }
+      o.position.y = ud.water.baseY + Math.sin(ud.water.off * 1.2) * 0.05;
     }
     if (ud.wave) {
       o.position.z = ud.wave.baseZ + Math.sin(bobTime * 1.5 + ud.wave.off) * 1.5;

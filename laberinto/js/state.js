@@ -21,3 +21,6 @@ export const state = {
 export const PLAYER_RADIUS = 0.55;
 export const GRAVITY = 38;
 export const JUMP_VELOCITY = 11;
+
+export const POINTS_PER_HINT = 2;
+export const POINTS_PER_CORRECT_ANSWER = 10;

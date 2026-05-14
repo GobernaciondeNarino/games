@@ -369,5 +369,3 @@ export const HINT_LIBRARY = {
   ]
 };
 
-export const POINTS_PER_HINT = 2;
-export const POINTS_PER_CORRECT_ANSWER = 10;

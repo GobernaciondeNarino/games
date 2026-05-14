@@ -1,7 +1,6 @@
 // Controles: teclado (WASD/flechas, salto, recentrar cámara) y
 // joystick virtual + botón de salto para dispositivos táctiles.
 
-import { state } from './state.js';
 import { setKey, doJump, joystick, player } from './player.js';
 import { recenterCamera } from './camera.js';
 
