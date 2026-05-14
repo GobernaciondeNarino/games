@@ -68,7 +68,7 @@ const characterState = {
     await nano.load();
   } catch (err) {
     console.error('Failed to load Ñaño model:', err);
-    loadingEl.textContent = 'No se pudo cargar el modelo (revisa public/models/RobotExpressive.glb)';
+    loadingEl.textContent = 'No se pudo cargar el modelo (revisa models/RobotExpressive.glb)';
     return;
   }
   scene.add(nano.root);
@@ -78,9 +78,8 @@ const characterState = {
   characterState.position.y = terrain.getHeightAt(characterState.position.x, characterState.position.z);
   nano.root.position.copy(characterState.position);
 
-  // Aim camera roughly toward maze entrance from start.
-  controls.yaw = Math.PI; // look toward +Z initially? we want to look at maze (north).
-  // Spawn is south of the maze, so camera should look north (-Z). Default yaw=0 places camera behind on +Z; that's fine.
+  // Spawn is south of the maze; yaw=0 puts the camera behind Ñaño looking
+  // north toward the maze entrance.
   controls.yaw = 0;
 
   loadingEl.classList.add('hidden');
@@ -94,9 +93,18 @@ window.addEventListener('resize', () => {
 });
 
 const clock = new THREE.Clock();
-const moveDir = new THREE.Vector3();
+const moveDir = new THREE.Vector3();      // desired direction (normalized)
 const tmpForward = new THREE.Vector3();
 const tmpRight = new THREE.Vector3();
+const horizVel = new THREE.Vector3();     // smoothed horizontal velocity
+const targetVel = new THREE.Vector3();
+const faceDir = new THREE.Vector3();      // direction the model should face
+
+// Movement feel constants.
+const WALK_SPEED = 3.4;
+const RUN_SPEED = 7.6;
+const ACCEL = 28;   // units/s^2 ramp-up
+const DECEL = 22;   // units/s^2 ramp-down
 
 function start() {
   let prevJump = false;
@@ -112,9 +120,30 @@ function start() {
     if (controls.back) moveDir.add(tmpForward);
     if (controls.left) moveDir.sub(tmpRight);
     if (controls.right) moveDir.add(tmpRight);
-    if (moveDir.lengthSq() > 0) moveDir.normalize();
-    const baseSpeed = controls.run ? 7.5 : 3.5;
-    const moveXZ = moveDir.clone().multiplyScalar(baseSpeed);
+    const hasInput = moveDir.lengthSq() > 0;
+    if (hasInput) moveDir.normalize();
+
+    const running = controls.run;
+    const maxSpeed = running ? RUN_SPEED : WALK_SPEED;
+
+    // Smoothly accelerate / decelerate the horizontal velocity so starts and
+    // stops are fluid instead of snapping.
+    targetVel.copy(moveDir).multiplyScalar(hasInput ? maxSpeed : 0);
+    const rate = hasInput ? ACCEL : DECEL;
+    const maxStep = rate * dt;
+    const dvx = targetVel.x - horizVel.x;
+    const dvz = targetVel.z - horizVel.z;
+    const dvLen = Math.hypot(dvx, dvz);
+    if (dvLen <= maxStep || dvLen === 0) {
+      horizVel.x = targetVel.x;
+      horizVel.z = targetVel.z;
+    } else {
+      horizVel.x += (dvx / dvLen) * maxStep;
+      horizVel.z += (dvz / dvLen) * maxStep;
+    }
+
+    const moveXZ = tmpForward.set(horizVel.x, 0, horizVel.z); // reuse tmpForward as scratch
+    const speed = Math.hypot(horizVel.x, horizVel.z);
 
     const jumpEdge = controls.jump && !prevJump;
     prevJump = controls.jump;
@@ -122,11 +151,14 @@ function start() {
     physics.update(characterState, dt, moveXZ, jumpEdge);
 
     nano.root.position.copy(characterState.position);
-    const speed = moveDir.lengthSq() > 0 ? baseSpeed : 0;
+
+    // Face the actual velocity while moving; keep last facing when stopping.
+    if (speed > 0.05) faceDir.set(horizVel.x, 0, horizVel.z).normalize();
     nano.update(dt, {
       speed,
       grounded: characterState.grounded,
-      moveDir,
+      moveDir: speed > 0.05 ? faceDir : null,
+      running,
     });
 
     cameraRig.update(dt, characterState.position);

@@ -19,6 +19,17 @@
       }
       #loading.hidden { display: none; }
     </style>
+
+    <!-- Buildless setup: three.js is vendored locally under ./vendor so the
+         whole /nano folder can be uploaded to Plesk and run as static files. -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js",
+        "three/addons/": "./vendor/addons/"
+      }
+    }
+    </script>
   </head>
   <body>
     <canvas id="app"></canvas>
@@ -28,6 +39,6 @@
       <div>Ñaño explora el laberinto. ¡Recarga para uno nuevo!</div>
     </div>
     <div id="loading">Cargando a Ñaño…</div>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
