@@ -12,8 +12,14 @@ Proyecto **100 % estático y "buildless"**: no necesita Node, npm ni paso de
 compilación. Todo —incluido Three.js— se sube tal cual. El personaje y todo el
 escenario se construyen con primitivas de Three.js, **sin modelos externos**.
 
-1. Sube **toda la carpeta `nano/`** a tu hosting (p. ej. `httpdocs/nano/`).
+1. Sube **toda la carpeta `nano/`** a tu hosting (p. ej. `httpdocs/nano/`),
+   manteniendo la estructura `src/` y `vendor/`. Sube **todos** los archivos
+   juntos (no mezcles versiones).
 2. Abre `https://tu-dominio/nano/` en el navegador. Listo.
+
+Los módulos importan Three.js por **ruta relativa**
+(`../vendor/three.module.js`) — no hay importmap ni dependencias de CDN, así
+que no puede fallar por una subida parcial.
 
 Requisitos del servidor (Plesk los cumple por defecto):
 - Servir `.js` como `text/javascript` / `application/javascript`.
@@ -52,7 +58,7 @@ Requisitos del servidor (Plesk los cumple por defecto):
 
 ```
 nano/
-├── index.html              # importmap → vendor/three.module.js, HUD, arranca src/main.js
+├── index.html              # HUD + favicon inline, arranca src/main.js
 ├── src/
 │   ├── main.js             # escena, luces, loop, suavizado de movimiento, HUD
 │   ├── terrain.js          # heightmap value-noise + escaleras + zonas planas

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import { MAZE_REGION } from './terrain.js';
 
 // Glowing gems scattered across the world. Each one spins, bobs and is

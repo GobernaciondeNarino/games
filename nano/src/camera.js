@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 
 // Third-person orbital camera rig.
 //  - Orbits the character via controls yaw/pitch/distance.

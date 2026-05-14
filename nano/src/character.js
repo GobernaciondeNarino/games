@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 
 // ---------------------------------------------------------------------------
 // Chibi robot "ÑAÑO" — built entirely from Three.js primitives (no GLTF).
@@ -178,6 +178,7 @@ export function buildChibi(palette = NANO_COLORS, opts = {}) {
     : plasticMat(C.white);
   const shirt = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.5, 0.78, 20, 1, true), shirtMat);
   shirt.position.y = 0.52;
+  shirt.rotation.y = Math.PI; // bring the "ÑAÑO" text around to the front (+Z)
   shirt.castShadow = true;
   torsoGroup.add(shirt);
   group.add(torsoGroup);
@@ -195,7 +196,6 @@ export function buildChibi(palette = NANO_COLORS, opts = {}) {
   const parts = {
     legL, legR, armL, armR, torsoGroup, headGroup,
     antenna: headGroup.userData.antenna,
-    body,
   };
   return { group, parts };
 }
@@ -246,6 +246,9 @@ export class ChibiRig {
     p.torsoGroup.position.y = 0.9 + bob;
     p.torsoGroup.scale.y = 1 + breathe;
     p.torsoGroup.rotation.x = (running && moving ? 0.22 : moving ? 0.1 : 0) + j * -0.15;
+    // arms ride with the torso bob so the shoulders stay attached
+    p.armL.position.y = 1.76 + bob;
+    p.armR.position.y = 1.76 + bob;
 
     // head: subtle nod when idle, counter-bob when moving
     p.headGroup.position.y = 1.85 + bob;

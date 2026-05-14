@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import { Terrain, MAZE_REGION, SOCCER_REGION, TECH_REGION } from './terrain.js';
 import { Maze } from './maze.js';
 import { Controls } from './controls.js';

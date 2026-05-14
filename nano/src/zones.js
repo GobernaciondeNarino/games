@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import { SOCCER_REGION, TECH_REGION } from './terrain.js';
 
 // Soccer field + technology plaza outside the maze. Both register solid

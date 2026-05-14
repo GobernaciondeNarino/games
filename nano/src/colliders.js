@@ -11,17 +11,17 @@ export class ColliderWorld {
     this.dynamic = [];  // cleared & rebuilt every frame
   }
 
-  addAABB(minX, minZ, maxX, maxZ, topY = Infinity, baseY = -Infinity) {
-    this.static.push({ kind: 'aabb', minX, minZ, maxX, maxZ, topY, baseY });
+  addAABB(minX, minZ, maxX, maxZ, topY = Infinity) {
+    this.static.push({ kind: 'aabb', minX, minZ, maxX, maxZ, topY });
   }
 
-  addCircle(x, z, r, topY = Infinity, baseY = -Infinity) {
-    this.static.push({ kind: 'circle', x, z, r, topY, baseY });
+  addCircle(x, z, r, topY = Infinity) {
+    this.static.push({ kind: 'circle', x, z, r, topY });
   }
 
   // Register a moving circle for this frame only (NPC / player body).
   addDynamic(x, z, r, topY, owner) {
-    this.dynamic.push({ kind: 'circle', x, z, r, topY, baseY: -Infinity, owner });
+    this.dynamic.push({ kind: 'circle', x, z, r, topY, owner });
   }
 
   clearDynamic() {
@@ -37,9 +37,8 @@ export class ColliderWorld {
     for (const list of lists) {
       for (const c of list) {
         if (c.owner && c.owner === skip) continue;
-        // vertical overlap test — must straddle the collider's solid band
+        // an entity above the collider's top simply passes over it
         if (pos.y > c.topY + 0.05) continue;
-        if (pos.y + 1.6 < c.baseY) continue;
 
         if (c.kind === 'aabb') {
           const cx = Math.max(c.minX, Math.min(pos.x, c.maxX));

@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import { ChibiRig } from './character.js';
 
 // Wandering NPC robots. Each one builds a recolored ChibiRig, picks random

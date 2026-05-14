@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import { MAZE_REGION } from './terrain.js';
 
 // Recursive-backtracker maze generator. Each cell tracks four walls (N,E,S,W).
