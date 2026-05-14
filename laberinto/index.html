@@ -155,6 +155,41 @@
   }
   </script>
 
+  <!-- Detector de fallo de carga: si los módulos no arrancan (p. ej. un
+       archivo .js desactualizado en el servidor), evita el spinner infinito
+       y muestra una pista para resolverlo. -->
+  <script>
+    window.__juegoArranco = false;
+    window.addEventListener('error', function (e) {
+      if (e.message && /module|import|export/i.test(e.message)) mostrarFalloCarga(e.message);
+    });
+    function mostrarFalloCarga(detalle) {
+      var l = document.getElementById('loading');
+      if (!l) return;
+      l.innerHTML =
+        '<div style="max-width:520px;text-align:center;padding:24px;line-height:1.5;">' +
+        '<h2 style="color:#FFC107;margin-bottom:12px;">No se pudo iniciar el juego</h2>' +
+        '<p>Parece que el servidor tiene archivos desactualizados o incompletos.</p>' +
+        '<p style="margin-top:10px;">Vuelve a subir <b>todos</b> los archivos de <code>css/</code> ' +
+        'y <code>js/</code> (incluida <code>js/scenarios/</code>) y recarga con <b>Ctrl + F5</b>.</p>' +
+        (detalle ? '<p style="margin-top:14px;font-size:12px;opacity:0.7;">Detalle técnico: ' +
+          detalle.replace(/</g, '&lt;') + '</p>' : '') +
+        '</div>';
+      l.classList.remove('hidden');
+      l.style.opacity = '1';
+      l.style.pointerEvents = 'auto';
+    }
+    setTimeout(function () {
+      if (!window.__juegoArranco) {
+        var l = document.getElementById('loading');
+        if (l && !l.classList.contains('hidden')) {
+          mostrarFalloCarga('La carga superó el tiempo de espera.');
+        }
+      }
+    }, 9000);
+  </script>
+
   <script type="module" src="./js/main.js"></script>
+
 </body>
 </html>

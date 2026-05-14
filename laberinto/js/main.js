@@ -22,6 +22,9 @@ import {
 let bobTime = 0;
 
 function init() {
+  // Señala al detector de fallo de index.html que los módulos sí cargaron.
+  window.__juegoArranco = true;
+
   const canvas = initWorld();
   initCamera(canvas);
   initControls();
