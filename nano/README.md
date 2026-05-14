@@ -1,33 +1,41 @@
 # Ñaño 3D
 
-Mini-juego web 3D con Three.js. La mascota **Ñaño** (robot bebé turquesa, estilo
-chibi/Funko Pop) explora un mundo con lomas, escaleras y un **laberinto generado
-al azar en cada recarga**. Recoge gemas brillantes para sumar puntos, juega en
-la cancha de fútbol, visita la zona de tecnología y se cruza con otros robots
-que deambulan libremente. Cámara orbital en tercera persona con el mouse.
+Mini-juego web 3D con Three.js. La mascota **Ñaño** (robot turquesa estilo
+chibi/Funko Pop: cabeza grande redondeada, antena, audífonos, torso-caja con
+"ÑAÑO" y zapatillas) explora un mundo con lomas, escaleras y un **laberinto
+generado al azar en cada recarga**. Recoge gemas brillantes para sumar puntos,
+mete goles en la cancha de fútbol, visita la zona de tecnología y se cruza con
+figuras encapuchadas que deambulan libremente. Cámara orbital en tercera
+persona con el mouse.
 
-## Despliegue en Plesk (sin terminal, sin instalación)
+## Estructura del proyecto
 
-**Solo hay 2 archivos que subir** y el juego es 100 % estático (sin Node, npm,
-ni paso de compilación):
+El juego es 100 % estático (sin Node, npm ni paso de compilación). Está
+organizado en carpetas:
 
 ```
 nano/
-├── index.html              ← TODO el código del juego está aquí dentro
+├── index.html              ← cáscara HTML (enlaza el CSS y el JS)
+├── css/
+│   └── style.css           ← estilos de la interfaz (HUD, marcador, pantalla de carga)
+├── js/
+│   └── main.js             ← TODO el código del juego (módulo ES nativo)
 └── vendor/
     └── three.module.js     ← la librería Three.js r160 (nunca cambia)
 ```
 
-1. Sube la carpeta `nano/` completa a tu hosting (p. ej. `httpdocs/nano/`),
-   conservando `vendor/three.module.js`.
+`index.html` carga `css/style.css` y `js/main.js`; `js/main.js` importa la
+librería desde `../vendor/three.module.js`.
+
+## Despliegue en Plesk (sin terminal, sin instalación)
+
+1. Sube la carpeta `nano/` **completa** a tu hosting (p. ej. `httpdocs/nano/`),
+   conservando las carpetas `css/`, `js/` y `vendor/` tal cual.
 2. Abre `https://tu-dominio/nano/` en el navegador.
 
-**Por qué es a prueba de fallos:** todo el código del juego vive _dentro_ de
-`index.html` (un único `<script type="module">`). El único recurso externo es
-`vendor/three.module.js`, que es la librería y **nunca se modifica**. Así que no
-existen archivos del juego que se puedan desincronizar entre sí: si actualizas
-`index.html`, ya está todo actualizado.
-
+> **Importante:** deben subirse las cuatro piezas (`index.html`, `css/`, `js/`
+> y `vendor/`). Si falta alguna, el juego no carga.
+>
 > Si al abrirlo ves "No se pudo cargar vendor/three.module.js", falta subir la
 > carpeta `vendor/`.
 >
@@ -51,40 +59,46 @@ Requisitos del servidor (Plesk los cumple por defecto):
 
 ## Qué hay en el mundo
 
-- **Ñaño** — robot chibi construido con primitivas (cabeza grande, antena,
-  audífonos, camiseta "ÑAÑO", zapatillas). Animación procedural de idle, caminar,
-  correr y saltar.
+- **Ñaño** — robot chibi construido con primitivas: cabeza grande y redondeada
+  con ojos planos, boca sonriente, antena y audífonos; torso-caja blanco con
+  "ÑAÑO" impreso; **brazos y piernas robóticos articulados** (rótulas de
+  hombro, codo, cadera y rodilla) con manos de dedos y zapatillas deportivas.
+  Animación procedural de idle, caminar, correr y saltar.
 - **Laberinto** — recursive-backtracker, distinto en cada recarga, con muros
   sólidos.
 - **Gemas brillantes** — esparcidas por el mundo y dentro del laberinto; al
   tocarlas suman puntos (HUD arriba a la derecha).
-- **Cancha de fútbol** — fuera del laberinto, con líneas, arcos y un balón que
-  Ñaño puede patear.
+- **Cancha de fútbol** — con líneas, áreas penales, arcos y un balón en el
+  centro a la altura de la rodilla. Si Ñaño lo patea dentro del arco, **suma un
+  gol** (100 puntos) y el balón vuelve al centro.
 - **Zona de tecnología** — plaza con racks de servidores, una pantalla gigante
   y un anillo holográfico, todo con luces emisivas.
-- **Robots NPC** — varios personajes de colores que caminan/corren a destinos
-  aleatorios y chocan con el mundo, contigo y entre ellos.
+- **NPC encapuchados** — figuras tipo "guardián" con capa, capucha de visor
+  brillante, anillos de luz y cables luminosos; flotan y deambulan a destinos
+  aleatorios chocando con el mundo, contigo y entre ellos.
 - **Colisiones** — laberinto, árboles, rocas, arcos, props tecnológicos, NPCs y
   jugador comparten un mismo sistema de colisión.
 
-## Estructura interna de `index.html`
+## Estructura interna de `js/main.js`
 
-El `<script type="module">` está dividido en secciones comentadas, en orden de
-dependencia: `colliders` → `controls` → `physics` → `terrain` → `maze` →
-`character` (Ñaño chibi + `ChibiRig`) → `npc` → `camera` → `collectibles` →
-`zones` (fútbol + tecnología) → `main` (escena, luces, loop).
+El módulo está dividido en secciones comentadas, en orden de dependencia:
+`colliders` → `controls` → `physics` → `terrain` → `maze` → `character`
+(Ñaño + `ChibiRig`) → `npc` (figura encapuchada + `CloakedRig`) → `camera` →
+`collectibles` → `zones` (fútbol + tecnología) → `main` (escena, luces, loop).
 
 ## Personalizar
 
-Todo se edita dentro de `index.html`:
+Todo se edita dentro de `js/main.js`:
 
 - **Colores de Ñaño:** la constante `NANO_COLORS`.
-- **NPCs:** número en `new NPCManager(terrain, 9)` y paletas en `PALETTES`.
+- **NPCs:** número en `new NPCManager(terrain, 9)` y paletas en `CLOAK_PALETTES`.
 - **Gemas:** cantidad en `new Collectibles(terrain, 64)` y valor en `value: 10`.
 - **Laberinto:** `cols`, `rows` en la clase `Maze`.
 - **Zonas:** `MAZE_REGION`, `SOCCER_REGION`, `TECH_REGION`.
 
+La interfaz (HUD, marcador, pantalla de carga) se edita en `css/style.css`.
+
 ## Inspiración
 
 - Demos de [SimonDev](https://simondev.io/demos/gamedev/).
-- Spec del personaje: `../nano-toy.md`.
+- Estructura de sitio estático: [kodeclubs.com](https://www.kodeclubs.com/).
