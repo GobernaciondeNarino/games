@@ -199,10 +199,13 @@ const fbm = (x, y) => {
 const TERRAIN_SIZE = 200;
 const TERRAIN_SEG = 200;
 const MAZE_REGION = { cx: 40, cz: 40, w: 60, h: 60, y: 0 };
-const SOCCER_REGION = { cx: -48, cz: 30, w: 44, h: 30, y: 0.4 };
-const TECH_REGION = { cx: 46, cz: -46, w: 34, h: 34, y: 0.6 };
-const STAIR_REGION = { cx: -30, cz: -42, w: 14, h: 30, baseY: 0, step: 0.5 };
-const HEIGHT_SCALE = 6;
+const SOCCER_REGION = { cx: -48, cz: 30, w: 44, h: 30, y: 0.25 };
+const TECH_REGION = { cx: 46, cz: -46, w: 34, h: 34, y: 0.35 };
+// Plataforma de escalera más larga (más escalones) y mucho más baja
+// (paso de 0.22 en lugar de 0.5) para que sea fácil de subir.
+const STAIR_REGION = { cx: -30, cz: -42, w: 14, h: 30, baseY: 0, step: 0.22 };
+// Lomas suaves: HEIGHT_SCALE bajado de 6 a 3.2 para un mundo más caminable.
+const HEIGHT_SCALE = 3.2;
 const inZone = (x, z, r) =>
   Math.abs(x - r.cx) < r.w / 2 && Math.abs(z - r.cz) < r.h / 2;
 
@@ -230,8 +233,10 @@ class Terrain {
       const z = pos.getZ(i);
       let y = fbm(x * 0.04, z * 0.04) * HEIGHT_SCALE;
       if (inZone(x, z, STAIR_REGION)) {
+        // 14 escalones a lo largo de la zona (antes 10): cada uno más
+        // pequeño, así la rampa total queda mucho más baja.
         const tz = (z - (STAIR_REGION.cz - STAIR_REGION.h / 2)) / STAIR_REGION.h;
-        const steps = Math.floor(tz * 10);
+        const steps = Math.floor(tz * 14);
         y = STAIR_REGION.baseY + steps * STAIR_REGION.step;
       }
       if (inZone(x, z, MAZE_REGION)) y = MAZE_REGION.y;
@@ -459,28 +464,42 @@ function buildArm(C, side) {
   return g;
 }
 
-// Zapatilla deportiva robusta: suela oscura, mediasuela blanca, empeine
-// blanco con puntera y un rayo turquesa en el costado.
+// Zapatilla deportiva robusta (réplica de la referencia): suela verde
+// oscura, mediasuela blanca, empeine verde con puntera blanca y un rayo
+// amarillo en el costado externo. Cordones blancos visibles en el empeine.
 function buildSneaker(C, side) {
   const s = new THREE.Group();
+  const green = plasticMat(C.greenDark, { roughness: 0.45 });
+  const greenLight = plasticMat(0x3da55c, { roughness: 0.45 });
   const white = plasticMat(C.white, { roughness: 0.5 });
-  const sole = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.12, 0.72), plasticMat(C.tealDark));
+  const sole = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.1, 0.72), green);
   sole.position.set(0, -0.12, 0.1);
-  const midsole = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.11, 0.7), white);
-  midsole.position.set(0, -0.03, 0.1);
+  const midsole = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.07, 0.74), white);
+  midsole.position.set(0, -0.05, 0.1);
   const toe = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.18, 0.26), white);
   toe.position.set(0, 0.08, 0.3);
-  const upper = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.26, 0.42), white);
+  const upper = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.26, 0.42), greenLight);
   upper.position.set(0, 0.13, 0.04);
-  const collar = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.18, 0.26), plasticMat(C.teal));
+  const collar = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.18, 0.26), green);
   collar.position.set(0, 0.22, -0.08);
-  // rayo turquesa en el costado externo
-  const boltMat = plasticMat(C.teal);
-  const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.1, 0.18), boltMat);
-  b1.position.set(side * 0.2, 0.06, 0.12); b1.rotation.x = 0.5;
-  const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.1, 0.16), boltMat);
-  b2.position.set(side * 0.2, 0.12, -0.02); b2.rotation.x = -0.5;
-  s.add(sole, midsole, toe, upper, collar, b1, b2);
+  // cordones blancos: 3 pequeñas franjas sobre el empeine
+  for (let i = 0; i < 3; i++) {
+    const lace = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.05), white);
+    lace.position.set(0, 0.22, 0.15 - i * 0.09);
+    s.add(lace);
+  }
+  // rayo amarillo en el costado externo (lado `side`)
+  const boltMat = new THREE.MeshStandardMaterial({
+    color: C.yellow, emissive: C.yellow, emissiveIntensity: 0.15,
+    roughness: 0.4, metalness: 0.05,
+  });
+  const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.11, 0.18), boltMat);
+  b1.position.set(side * 0.2, 0.07, 0.16); b1.rotation.x = 0.55;
+  const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.11, 0.16), boltMat);
+  b2.position.set(side * 0.2, 0.13, -0.02); b2.rotation.x = -0.55;
+  const b3 = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.06, 0.1), boltMat);
+  b3.position.set(side * 0.2, 0.05, -0.14); b3.rotation.x = 0.3;
+  s.add(sole, midsole, toe, upper, collar, b1, b2, b3);
   s.traverse((o) => { if (o.isMesh) o.castShadow = true; });
   return s;
 }
@@ -523,17 +542,22 @@ function buildHead(C, withFace = true) {
   skull.scale.set(1.16, 1.0, 1.05);
   skull.castShadow = true;
   g.add(skull);
+  const eyes = [];
   if (withFace) {
     const eyeMat = plasticMat(0x10242a, { roughness: 0.16, metalness: 0.15 });
     const hlMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     for (const sx of [-1, 1]) {
-      // ojo: disco redondo plano, ligeramente saliente de la cara
+      // ojo: disco redondo plano, ligeramente saliente de la cara.
+      // Lo guardamos en `eyes` para poder parpadear desde el rig.
+      const eyePivot = new THREE.Group();
+      eyePivot.position.set(sx * 0.4, 0.08, 0.86);
       const eye = new THREE.Mesh(new THREE.SphereGeometry(0.26, 30, 22), eyeMat);
       eye.scale.set(1, 1, 0.34);
-      eye.position.set(sx * 0.4, 0.08, 0.86);
       const hl = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), hlMat);
-      hl.position.set(sx * 0.4 - sx * 0.08, 0.17, 0.95);
-      g.add(eye, hl);
+      hl.position.set(-sx * 0.08, 0.09, 0.09);
+      eyePivot.add(eye, hl);
+      g.add(eyePivot);
+      eyes.push(eyePivot);
     }
     // boca abierta sonriente
     const mouth = new THREE.Mesh(new THREE.SphereGeometry(0.24, 30, 22), plasticMat(0x180f0f, { roughness: 0.5 }));
@@ -558,17 +582,23 @@ function buildHead(C, withFace = true) {
     rim.position.set(sx * 1.15, -0.02, 0);
     g.add(cup, hole, rim);
   }
-  // antena, arriba a la izquierda
+  // antena con LED emisivo en la punta (parpadea como un router).
   const antenna = new THREE.Group();
   const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.66, 8), plasticMat(C.teal));
   rod.position.y = 0.33;
-  const tip = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 14), plasticMat(C.teal));
+  const tipMat = new THREE.MeshStandardMaterial({
+    color: 0xff5a5a, emissive: 0xff5a5a, emissiveIntensity: 1.3,
+    roughness: 0.25, metalness: 0.1,
+  });
+  const tip = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 14), tipMat);
   tip.position.y = 0.7;
   antenna.add(rod, tip);
   antenna.position.set(-0.52, 0.82, 0.08);
   antenna.rotation.z = 0.22;
   g.add(antenna);
   g.userData.antenna = antenna;
+  g.userData.antennaLED = tipMat;
+  g.userData.eyes = eyes;
   return g;
 }
 
@@ -615,6 +645,8 @@ function buildChibi(palette = NANO_COLORS, opts = {}) {
   const parts = {
     legL, legR, armL, armR, torsoGroup, headGroup,
     antenna: headGroup.userData.antenna,
+    antennaLED: headGroup.userData.antennaLED,
+    eyes: headGroup.userData.eyes,
     armLfore: armL.userData.forearm, armRfore: armR.userData.forearm,
     legLknee: legL.userData.knee, legRknee: legR.userData.knee,
   };
@@ -631,7 +663,7 @@ class ChibiRig {
     this._facingY = 0;
     this._jumpBlend = 0;
   }
-  update(dt, { speed = 0, grounded = true, moveDir = null, running = false }) {
+  update(dt, { speed = 0, grounded = true, moveDir = null, running = false, faceY = null }) {
     this._t += dt;
     const p = this.parts;
     const cadence = running ? 11 : 8;
@@ -670,8 +702,25 @@ class ChibiRig {
     p.headGroup.position.y = 3.05 + bob;
     p.headGroup.rotation.x = moving ? -bob * 0.6 : Math.sin(this._t * 0.8) * 0.05;
     if (p.antenna) p.antenna.rotation.z = Math.sin(this._t * 2.5 + this._phase * 0.5) * 0.15;
-    if (moveDir && (moveDir.x !== 0 || moveDir.z !== 0)) {
-      const targetY = Math.atan2(moveDir.x, moveDir.z);
+    if (p.antennaLED) p.antennaLED.emissiveIntensity = 1.05 + Math.sin(this._t * 4.5) * 0.55;
+
+    // Parpadeo: cierra los ojos ~120 ms cada 3-5 s (mover la escala Y).
+    if (p.eyes) {
+      this._blinkTimer = (this._blinkTimer ?? 1.5) - dt;
+      if (this._blinkTimer < 0) this._blinkTimer = 3 + Math.random() * 2;
+      const blink = this._blinkTimer < 0.12 ? Math.sin((1 - this._blinkTimer / 0.12) * Math.PI) : 0;
+      const sy = Math.max(0.06, 1 - blink);
+      for (const eye of p.eyes) eye.scale.y = sy;
+    }
+
+    // Orientación: si recibimos faceY (modo cámara fija) lo respetamos;
+    // si no, miramos hacia el vector de movimiento (modo libre).
+    let targetY = null;
+    if (faceY !== null && faceY !== undefined) targetY = faceY;
+    else if (moveDir && (moveDir.x !== 0 || moveDir.z !== 0)) {
+      targetY = Math.atan2(moveDir.x, moveDir.z);
+    }
+    if (targetY !== null) {
       let dy = targetY - this._facingY;
       while (dy > Math.PI) dy -= Math.PI * 2;
       while (dy < -Math.PI) dy += Math.PI * 2;
@@ -1253,6 +1302,314 @@ function buildTech(colliders) {
 }
 
 // =========================================================================
+// birds — bandada de pájaros que sobrevuela el mundo
+// =========================================================================
+// Pájaros estilizados: un cuerpo en forma de "almendra" + dos alas que
+// baten. Cada uno orbita un punto del mundo, sube y baja suavemente y
+// rota para apuntar a su tangente de vuelo. Pensados para ser ligeros
+// (toda la bandada comparte materiales).
+const BIRD_PALETTES = [
+  { body: 0x1a1a1a, belly: 0xffffff, beak: 0xffb347 },   // golondrina
+  { body: 0x4a3a26, belly: 0xf3e9d0, beak: 0xf6b042 },   // gorrión
+  { body: 0xc23a3a, belly: 0xfff0e0, beak: 0x222222 },   // cardenal
+  { body: 0x3070b0, belly: 0xffffff, beak: 0xffb347 },   // azulejo
+  { body: 0xf2f2f2, belly: 0xffffff, beak: 0xff8a2a },   // paloma
+];
+
+function buildBird(palette) {
+  const g = new THREE.Group();
+  const bodyMat = new THREE.MeshStandardMaterial({ color: palette.body, roughness: 0.7 });
+  const bellyMat = new THREE.MeshStandardMaterial({ color: palette.belly, roughness: 0.75 });
+  const beakMat = new THREE.MeshStandardMaterial({ color: palette.beak, roughness: 0.5 });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x101010 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 10), bodyMat);
+  body.scale.set(1.6, 0.85, 1);
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 10), bellyMat);
+  belly.scale.set(1.4, 0.6, 0.9);
+  belly.position.set(0, -0.06, 0);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 10), bodyMat);
+  head.position.set(0.26, 0.05, 0);
+  const beak = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.13, 8), beakMat);
+  beak.rotation.z = -Math.PI / 2;
+  beak.position.set(0.42, 0.04, 0);
+  for (const sz of [-1, 1]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 6), eyeMat);
+    eye.position.set(0.32, 0.09, sz * 0.07);
+    g.add(eye);
+  }
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 6), bodyMat);
+  tail.rotation.z = Math.PI / 2;
+  tail.position.set(-0.34, 0, 0);
+  // Alas: cada una es un grupo con un pivote en el costado del cuerpo
+  // para poder batirlas con una rotación sencilla.
+  const wingGeo = new THREE.BoxGeometry(0.34, 0.04, 0.22);
+  const wingL = new THREE.Group();
+  const wlMesh = new THREE.Mesh(wingGeo, bodyMat);
+  wlMesh.position.set(0, 0, -0.17);
+  wingL.add(wlMesh);
+  wingL.position.set(-0.02, 0.05, -0.1);
+  const wingR = new THREE.Group();
+  const wrMesh = new THREE.Mesh(wingGeo, bodyMat);
+  wrMesh.position.set(0, 0, 0.17);
+  wingR.add(wrMesh);
+  wingR.position.set(-0.02, 0.05, 0.1);
+  g.add(body, belly, head, beak, tail, wingL, wingR);
+  return { group: g, wingL, wingR };
+}
+
+class Birds {
+  constructor(count = 14) {
+    this.group = new THREE.Group();
+    this.birds = [];
+    for (let i = 0; i < count; i++) {
+      const palette = BIRD_PALETTES[i % BIRD_PALETTES.length];
+      const { group, wingL, wingR } = buildBird(palette);
+      const cx = (Math.random() - 0.5) * 140;
+      const cz = (Math.random() - 0.5) * 140;
+      const radius = 14 + Math.random() * 28;
+      const baseY = 16 + Math.random() * 12;
+      const speed = 0.35 + Math.random() * 0.4;
+      const phase = Math.random() * Math.PI * 2;
+      const dir = Math.random() < 0.5 ? -1 : 1;
+      const flap = 8 + Math.random() * 5;
+      this.birds.push({ group, wingL, wingR, cx, cz, radius, baseY, speed, phase, dir, flap });
+      this.group.add(group);
+    }
+  }
+  update(dt, t) {
+    for (const b of this.birds) {
+      b.phase += dt * b.speed * b.dir;
+      const x = b.cx + Math.cos(b.phase) * b.radius;
+      const z = b.cz + Math.sin(b.phase) * b.radius;
+      const y = b.baseY + Math.sin(t * 0.4 + b.phase) * 1.5;
+      // Mirar hacia la tangente de la órbita (a 90° del radio).
+      const tx = -Math.sin(b.phase) * b.dir;
+      const tz =  Math.cos(b.phase) * b.dir;
+      b.group.position.set(x, y, z);
+      b.group.rotation.y = Math.atan2(tx, tz) - Math.PI / 2;
+      const flap = Math.sin(t * b.flap + b.phase * 2) * 0.9;
+      b.wingL.rotation.x = flap;
+      b.wingR.rotation.x = -flap;
+    }
+  }
+}
+
+// =========================================================================
+// zone-details — pequeños props decorativos para que cada espacio tenga vida
+// =========================================================================
+function addMazeDetails(scene, colliders) {
+  // Faroles en las cuatro esquinas exteriores del laberinto: poste oscuro
+  // con una linterna emisiva arriba para marcar el contorno.
+  const lampPostMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.7 });
+  const lampGlassMat = new THREE.MeshStandardMaterial({
+    color: 0xffe28a, emissive: 0xffd06b, emissiveIntensity: 1.6, roughness: 0.4,
+  });
+  const r = MAZE_REGION;
+  const corners = [
+    [r.cx - r.w / 2 - 1.4, r.cz - r.h / 2 - 1.4],
+    [r.cx + r.w / 2 + 1.4, r.cz - r.h / 2 - 1.4],
+    [r.cx - r.w / 2 - 1.4, r.cz + r.h / 2 + 1.4],
+    [r.cx + r.w / 2 + 1.4, r.cz + r.h / 2 + 1.4],
+  ];
+  for (const [x, z] of corners) {
+    const g = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 2.6, 8), lampPostMat);
+    post.position.y = 1.3;
+    post.castShadow = true;
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.08), lampPostMat);
+    arm.position.set(0.25, 2.55, 0);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 12), lampGlassMat);
+    lamp.position.set(0.5, 2.55, 0);
+    g.add(post, arm, lamp);
+    g.position.set(x, r.y, z);
+    scene.add(g);
+    colliders.addCircle(x, z, 0.18, r.y + 2.7);
+  }
+  // "Cartel" del laberinto: una losa de piedra a un costado del corredor
+  // de entrada (sin bloquearlo) con una gema flotante encima como hito visual.
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x8a8278, roughness: 0.85 });
+  const pedestal = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.0, 1.4), stoneMat);
+  const px = r.cx - r.w / 2 + 9;     // ~9 unidades a la derecha del spawn
+  const pz = r.cz + r.h / 2 + 3.5;
+  pedestal.position.set(px, r.y + 0.5, pz);
+  pedestal.castShadow = true;
+  pedestal.receiveShadow = true;
+  scene.add(pedestal);
+  colliders.addAABB(px - 0.7, pz - 0.7, px + 0.7, pz + 0.7, r.y + 1.0);
+  const beacon = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.35, 0),
+    new THREE.MeshStandardMaterial({
+      color: 0x18e0ff, emissive: 0x18e0ff, emissiveIntensity: 1.5,
+      roughness: 0.2, metalness: 0.3,
+    }),
+  );
+  beacon.position.set(px, r.y + 1.7, pz);
+  beacon.userData.spin = Math.random();
+  scene.add(beacon);
+}
+
+function addSoccerDetails(scene, colliders) {
+  const R = SOCCER_REGION;
+  const y = R.y;
+  // Dos bancas largas (frente y reverso del campo) y dos arbustos a los costados.
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8a5a32, roughness: 0.8 });
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.7 });
+  for (const sz of [-1, 1]) {
+    const bench = new THREE.Group();
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.18, 0.6), woodMat);
+    seat.position.y = 0.5;
+    seat.castShadow = true; seat.receiveShadow = true;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.5, 0.12), woodMat);
+    back.position.set(0, 0.9, -0.25 * sz);
+    back.castShadow = true;
+    for (const lx of [-2.4, 0, 2.4]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.5), legMat);
+      leg.position.set(lx, 0.25, 0);
+      leg.castShadow = true;
+      bench.add(leg);
+    }
+    bench.add(seat, back);
+    bench.position.set(R.cx, y, R.cz + sz * (R.h / 2 + 1.4));
+    bench.rotation.y = sz < 0 ? Math.PI : 0;
+    scene.add(bench);
+    colliders.addAABB(R.cx - 2.8, R.cz + sz * (R.h / 2 + 1.4) - 0.4,
+                      R.cx + 2.8, R.cz + sz * (R.h / 2 + 1.4) + 0.4, y + 1.0);
+  }
+  // Pequeño marcador electrónico al lado de la cancha.
+  const board = new THREE.Group();
+  const boardPost = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.6, 8),
+    new THREE.MeshStandardMaterial({ color: 0x333, roughness: 0.6 }));
+  boardPost.position.y = 1.3;
+  const boardPanel = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.1, 0.12),
+    new THREE.MeshStandardMaterial({ color: 0x0a141f, emissive: 0x16a0ff, emissiveIntensity: 0.7 }));
+  boardPanel.position.y = 2.85;
+  board.add(boardPost, boardPanel);
+  board.position.set(R.cx + R.w / 2 + 3, y, R.cz);
+  scene.add(board);
+  colliders.addCircle(R.cx + R.w / 2 + 3, R.cz, 0.18, y + 2.6);
+}
+
+function addTechDetails(scene, t0Holder) {
+  const R = TECH_REGION;
+  const y = R.y;
+  // Cubos holográficos que flotan sobre la plaza y giran lentamente.
+  const cubes = [];
+  const cubeMat = new THREE.MeshStandardMaterial({
+    color: 0x18e0ff, emissive: 0x18e0ff, emissiveIntensity: 1.2,
+    transparent: true, opacity: 0.55, roughness: 0.2, metalness: 0.4,
+  });
+  for (let i = 0; i < 6; i++) {
+    const c = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), cubeMat);
+    const ang = (i / 6) * Math.PI * 2;
+    const cx = R.cx + Math.cos(ang) * 4;
+    const cz = R.cz + Math.sin(ang) * 4;
+    c.position.set(cx, y + 3 + Math.random() * 1.2, cz);
+    c.userData.baseY = c.position.y;
+    c.userData.phase = ang;
+    scene.add(c);
+    cubes.push(c);
+  }
+  // "Panel" piso emisivo con líneas (referencia tipo metaverso semi-realista).
+  const panelMat = new THREE.MeshStandardMaterial({
+    color: 0x163040, emissive: 0x163040, emissiveIntensity: 0.6, roughness: 0.4, metalness: 0.3,
+  });
+  for (let i = -1; i <= 1; i++) {
+    const strip = new THREE.Mesh(new THREE.BoxGeometry(R.w - 4, 0.02, 0.18), panelMat);
+    strip.position.set(R.cx, y + 0.22, R.cz + i * 3);
+    scene.add(strip);
+  }
+  // Devuelve una función de update para animar los cubos.
+  return (dt, t) => {
+    for (const c of cubes) {
+      c.rotation.x += dt * 0.6;
+      c.rotation.y += dt * 0.4;
+      c.position.y = c.userData.baseY + Math.sin(t * 1.2 + c.userData.phase) * 0.35;
+    }
+  };
+}
+
+function addClouds(scene) {
+  const cloudMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff, roughness: 1, emissive: 0xffffff, emissiveIntensity: 0.04,
+  });
+  const group = new THREE.Group();
+  for (let i = 0; i < 16; i++) {
+    const cloud = new THREE.Group();
+    const puffs = 3 + Math.floor(Math.random() * 3);
+    for (let p = 0; p < puffs; p++) {
+      const s = 1.2 + Math.random() * 1.6;
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 8), cloudMat);
+      puff.position.set((p - puffs / 2) * (s * 0.85), Math.random() * 0.5, Math.random() * 0.5);
+      cloud.add(puff);
+    }
+    cloud.position.set((Math.random() - 0.5) * 220, 28 + Math.random() * 10, (Math.random() - 0.5) * 220);
+    cloud.scale.setScalar(0.9 + Math.random() * 0.8);
+    group.add(cloud);
+  }
+  scene.add(group);
+}
+
+function addBushesAndFlowers(scene, terrain) {
+  const bushMat = new THREE.MeshStandardMaterial({ color: 0x3a8d3a, roughness: 0.95 });
+  const bushDark = new THREE.MeshStandardMaterial({ color: 0x2e6b2a, roughness: 1 });
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x4a7a30, roughness: 1 });
+  const petalMats = [
+    new THREE.MeshStandardMaterial({ color: 0xff5a8a, roughness: 0.6 }),
+    new THREE.MeshStandardMaterial({ color: 0xffd24a, roughness: 0.6 }),
+    new THREE.MeshStandardMaterial({ color: 0xff8a3a, roughness: 0.6 }),
+    new THREE.MeshStandardMaterial({ color: 0xb56cff, roughness: 0.6 }),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }),
+  ];
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: 0xffe066, emissive: 0xffe066, emissiveIntensity: 0.25, roughness: 0.6,
+  });
+  const group = new THREE.Group();
+  // Arbustos (esfera + esferita pegada)
+  for (let i = 0; i < 90; i++) {
+    const x = (Math.random() - 0.5) * 180;
+    const z = (Math.random() - 0.5) * 180;
+    if (inAuthoredZone(x, z)) continue;
+    const y = terrain.getHeightAt(x, z);
+    const bush = new THREE.Group();
+    const s = 0.5 + Math.random() * 0.6;
+    const a = new THREE.Mesh(new THREE.SphereGeometry(0.55, 10, 8), bushMat);
+    a.position.y = 0.45;
+    const b = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), bushDark);
+    b.position.set(0.35, 0.55, 0.1);
+    const c = new THREE.Mesh(new THREE.SphereGeometry(0.35, 10, 8), bushMat);
+    c.position.set(-0.25, 0.5, 0.2);
+    a.castShadow = b.castShadow = c.castShadow = true;
+    bush.add(a, b, c);
+    bush.position.set(x, y, z);
+    bush.scale.setScalar(s);
+    bush.rotation.y = Math.random() * Math.PI * 2;
+    group.add(bush);
+  }
+  // Flores (tallo + corola + centro emisivo)
+  for (let i = 0; i < 130; i++) {
+    const x = (Math.random() - 0.5) * 180;
+    const z = (Math.random() - 0.5) * 180;
+    if (inAuthoredZone(x, z)) continue;
+    const y = terrain.getHeightAt(x, z);
+    const flower = new THREE.Group();
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.45, 6), stemMat);
+    stem.position.y = 0.22;
+    const petal = new THREE.Mesh(
+      new THREE.TorusGeometry(0.1, 0.05, 8, 12),
+      petalMats[Math.floor(Math.random() * petalMats.length)],
+    );
+    petal.rotation.x = Math.PI / 2;
+    petal.position.y = 0.48;
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), coreMat);
+    core.position.y = 0.48;
+    flower.add(stem, petal, core);
+    flower.position.set(x, y, z);
+    group.add(flower);
+  }
+  scene.add(group);
+}
+
+// =========================================================================
 // main — escena, luces, loop
 // =========================================================================
 const canvas = document.getElementById('app');
@@ -1299,6 +1656,13 @@ scene.add(soccer.group);
 const tech = buildTech(colliders);
 scene.add(tech.group);
 addScenery(scene, terrain, colliders);
+addBushesAndFlowers(scene, terrain);
+addMazeDetails(scene, colliders);
+addSoccerDetails(scene, colliders);
+const techDetailsUpdate = addTechDetails(scene);
+addClouds(scene);
+const birds = new Birds(14);
+scene.add(birds.group);
 const collectibles = new Collectibles(terrain, 64);
 scene.add(collectibles.group);
 if (gemsEl) gemsEl.textContent = String(collectibles.remaining);
@@ -1349,6 +1713,8 @@ const RUN_SPEED = 7.6;
 const ACCEL = 28;
 const DECEL = 22;
 const PLAYER_RADIUS = 0.45;
+// Velocidad angular (rad/s) al girar la cámara con la tecla "abajo".
+const CAM_TURN_SPEED = 1.9;
 
 function start() {
   let prevJump = false;
@@ -1359,12 +1725,15 @@ function start() {
     const dt = Math.min(clock.getDelta(), 1 / 30);
     elapsed += dt;
 
+    // "Abajo" (S/↓) ya no retrocede: hace girar la cámara en su lugar.
+    // El personaje siempre mira al frente (hacia donde apunta la cámara),
+    // así que al girar la cámara también gira él.
+    if (controls.back) controls.yaw += CAM_TURN_SPEED * dt;
     const yaw = controls.yaw;
     tmpForward.set(Math.sin(yaw), 0, Math.cos(yaw));
     tmpRight.set(Math.cos(yaw), 0, -Math.sin(yaw));
     moveDir.set(0, 0, 0);
     if (controls.forward) moveDir.sub(tmpForward);
-    if (controls.back) moveDir.add(tmpForward);
     if (controls.left) moveDir.sub(tmpRight);
     if (controls.right) moveDir.add(tmpRight);
     const hasInput = moveDir.lengthSq() > 0;
@@ -1402,11 +1771,16 @@ function start() {
     nano.root.position.copy(characterState.position);
 
     if (speed > 0.05) faceDir.set(horizVel.x, 0, horizVel.z).normalize();
+    // Ñaño siempre mira hacia donde apunta la cámara: el "forward" del
+    // jugador es `-tmpForward = (-sin(yaw), 0, -cos(yaw))`, cuyo atan2 es
+    // `yaw + π`. El rig lerpea suavemente hasta ese ángulo.
+    const playerFaceY = yaw + Math.PI;
     nano.update(dt, {
       speed,
       grounded: characterState.grounded,
       moveDir: speed > 0.05 ? faceDir : null,
       running,
+      faceY: playerFaceY,
     });
 
     npcs.update(dt, colliders);
@@ -1423,6 +1797,8 @@ function start() {
       gemsEl.textContent = String(collectibles.remaining);
     }
     tech.update(dt, elapsed);
+    techDetailsUpdate(dt, elapsed);
+    birds.update(dt, elapsed);
 
     cameraRig.update(dt, characterState.position);
 

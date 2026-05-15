@@ -51,7 +51,13 @@ Requisitos del servidor (Plesk los cumple por defecto):
 
 ## Controles
 
-- **WASD / flechas** — moverse (relativo a la cámara)
+Ñaño **siempre mira al frente** (a la dirección a la que apunta la cámara).
+La tecla "abajo" ya no retrocede: gira la cámara en su lugar, así Ñaño
+gira con ella.
+
+- **W / ↑** — avanzar
+- **S / ↓** — **girar la cámara** (a velocidad constante)
+- **A / D** o **← / →** — _strafe_ (lateral)
 - **Shift** — correr
 - **Espacio** — saltar
 - **Mouse arrastrar** — orbitar la cámara (yaw / pitch)
@@ -60,22 +66,32 @@ Requisitos del servidor (Plesk los cumple por defecto):
 ## Qué hay en el mundo
 
 - **Ñaño** — robot chibi construido con primitivas: cabeza grande y redondeada
-  con ojos planos, boca sonriente, antena y audífonos; torso-caja blanco con
-  "ÑAÑO" impreso; **brazos y piernas robóticos articulados** (rótulas de
-  hombro, codo, cadera y rodilla) con manos de dedos y zapatillas deportivas.
-  Animación procedural de idle, caminar, correr y saltar.
+  con ojos planos que **parpadean**, boca sonriente, antena con **LED rojo
+  pulsante** y audífonos; torso-caja blanco con "ÑAÑO" impreso; **brazos y
+  piernas robóticos articulados** (rótulas de hombro, codo, cadera y rodilla)
+  con manos de dedos y **zapatillas verdes con suela blanca y rayo amarillo**
+  (réplica de la figura LEGO de referencia). Animación procedural de idle,
+  caminar, correr y saltar.
 - **Laberinto** — recursive-backtracker, distinto en cada recarga, con muros
-  sólidos.
+  sólidos. **Faroles emisivos** en las cuatro esquinas y una **estela turquesa
+  flotante** sobre un pedestal de piedra que marca el lado de la entrada.
 - **Gemas brillantes** — esparcidas por el mundo y dentro del laberinto; al
   tocarlas suman puntos (HUD arriba a la derecha).
 - **Cancha de fútbol** — con líneas, áreas penales, arcos y un balón en el
   centro a la altura de la rodilla. Si Ñaño lo patea dentro del arco, **suma un
-  gol** (100 puntos) y el balón vuelve al centro.
+  gol** (100 puntos) y el balón vuelve al centro. Hay **dos bancas** a los
+  costados y un **marcador electrónico** azul.
 - **Zona de tecnología** — plaza con racks de servidores, una pantalla gigante
-  y un anillo holográfico, todo con luces emisivas.
+  y un anillo holográfico, **cubos holográficos turquesa flotantes** y franjas
+  emisivas en el suelo.
 - **NPC encapuchados** — figuras tipo "guardián" con capa, capucha de visor
   brillante, anillos de luz y cables luminosos; flotan y deambulan a destinos
   aleatorios chocando con el mundo, contigo y entre ellos.
+- **Pájaros** — una bandada de 14 aves de varias paletas (golondrinas,
+  gorriones, cardenales, azulejos, palomas) sobrevuela el mundo en órbitas
+  amplias, batiendo las alas.
+- **Vegetación y nubes** — arbustos, flores de colores con núcleo emisivo y
+  nubes blancas dispersas por el cielo.
 - **Colisiones** — laberinto, árboles, rocas, arcos, props tecnológicos, NPCs y
   jugador comparten un mismo sistema de colisión.
 
@@ -102,3 +118,14 @@ La interfaz (HUD, marcador, pantalla de carga) se edita en `css/style.css`.
 
 - Demos de [SimonDev](https://simondev.io/demos/gamedev/).
 - Estructura de sitio estático: [kodeclubs.com](https://www.kodeclubs.com/).
+- [Sougen](https://sougen.co/) — _Web-First Metaverse_ con un enfoque de
+  **3D semi-realista** ("el mejor compromiso entre rendimiento y render"), que
+  evita un look cúbico estilo Minecraft para dar libertad a creadores. De ahí
+  tomamos:
+  - **Materiales con un pequeño toque metálico/emisivo** (LED en la antena,
+    rayo amarillo de la zapatilla, anillos de la zona tech).
+  - **Plaza tecnológica con cubos flotantes y panel emisivo en el suelo**
+    como guiño a su estética _holográfica/tipo microverso_.
+  - **Atmósfera viva**: nubes en el cielo, flores con núcleo emisivo y una
+    bandada de aves que circula constantemente sobre el mundo, para que el
+    "mundo de Ñaño" se sienta poblado en lugar de un escenario estático.
