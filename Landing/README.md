@@ -191,3 +191,18 @@ El componente está pensado para **bundlearse** y luego embeberse:
   para contenido real.
 - Sin colores/eslóganes/imágenes de partidos o campañas.
 - El video ambiente y la animación se desactivan con `prefers-reduced-motion`; nunca se secuestra el scroll nativo.
+
+---
+
+## 11. Plantilla de Elementor lista para importar (`plantillas/`)
+
+Para usar la landing **sin compilar nada**, la carpeta [`plantillas/`](./plantillas/) trae una
+**plantilla de página de Elementor** (`plantilla-tic-landing.json`, contenedores Flexbox, `version 0.4`)
+que recrea **hero con globo 3D + 12 secciones** de ejemplo.
+
+- Los **visuales de sección no son imágenes estáticas**: son **elementos animados con three.js**
+  (`<div class="tic-fx" data-fx="network|particles|terrain|rings|hexspin">`) montados por un motor FX,
+  para el aspecto cyber/HUD. El hero es el mismo globo 3D de Nariño.
+- Importa el `.json` en *Elementor → Plantillas → Importar*; sube `plantillas/media/` a tu WordPress.
+- Reproducible: `cd plantillas/src && node build-template.cjs`.
+- Detalle completo en [`plantillas/README.md`](./plantillas/README.md).
