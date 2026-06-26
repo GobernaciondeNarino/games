@@ -1,0 +1,26 @@
+/* Tipografías institucionales (Manual de Usabilidad Web v1.0):
+   - Hind Madurai  → toda la copia sustantiva (títulos/cuerpo)
+   - Nunito Sans   → etiquetas de UI
+   - Share Tech Mono → SOLO micro-tags decorativos del HUD (coords, STATUS, barcodes) */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&family=Nunito+Sans:wght@600;700&family=Share+Tech+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
