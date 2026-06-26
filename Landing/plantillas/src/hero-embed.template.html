@@ -1,0 +1,186 @@
+<!-- ===== HERO HUD + GLOBO 3D (autocontenido, scoped en #ticHero) ===== -->
+<!-- three.js + anime.js por CDN · datos de Nariño inline · textura Blue Marble (CDN + fallback). -->
+<div id="ticHero" role="region" aria-label="Presentación Secretaría TIC">
+  <div class="th-grid" aria-hidden="true"></div>
+  <div class="th-frame" aria-hidden="true">
+    <span class="th-br tl"></span><span class="th-br tr"></span><span class="th-br bl"></span><span class="th-br br"></span>
+    <div class="th-progress"><div class="th-prow"><span>EXPLORANDO // NARIÑO</span><span id="thPct">000%</span></div><div class="th-track"><div class="th-fill" id="thFill"></div></div></div>
+  </div>
+
+  <div class="th-strip" aria-hidden="true">
+    <span class="th-chip">● ACTIVE</span><span>SYS: ONLINE</span><span class="th-coord">01°12′N 077°16′W</span>
+  </div>
+
+  <div class="th-wrap">
+    <div class="th-globe-zone">
+      <div id="thGlobe"></div>
+      <div class="th-cap"><span>NARIÑO // 64 MUNICIPIOS</span></div>
+    </div>
+    <div class="th-content">
+      <div class="th-lockup">
+        <img src="https://tic.narino.gov.co/wp-content/uploads/2026/06/logo-gov-co-1-1.svg" alt="GOV.CO" class="th-govco" />
+        <span class="th-sep"></span>
+        <!-- TODO: replace with official SVG horizontal logo -->
+        <img src="https://tic.narino.gov.co/wp-content/uploads/2026/06/logo-1-1.png" alt="Gobernación de Nariño" class="th-gob" onerror="this.style.display='none'" />
+        <span class="th-dep">Secretaría TIC, Innovación y Gobierno Abierto</span>
+      </div>
+      <p class="th-kicker">GOBIERNO ABIERTO · DATOS · IA</p>
+      <h1 class="th-h1" id="thH1">Innovación, datos e inteligencia artificial para Nariño</h1>
+      <p class="th-sub" id="thSub">Fortalecemos la gestión pública con tecnología, análisis de datos y gobierno abierto para los 64 municipios del departamento.</p>
+      <div class="th-ctas" id="thCtas">
+        <a class="th-cta th-primary" href="https://datos.narino.gov.co/">Explora los datos abiertos ›››</a>
+        <a class="th-cta th-ghost" href="https://tic.narino.gov.co/">Conoce la Secretaría</a>
+      </div>
+      <p class="th-sr">Globo 3D interactivo del departamento de Nariño y sus 64 municipios. Gráfico decorativo; la información esencial está disponible como texto.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+#ticHero{position:relative;overflow:hidden;min-height:88vh;background:#E7EBEE;color:#2A2F36;font-family:"Hind Madurai",system-ui,sans-serif;}
+#ticHero *{box-sizing:border-box;}
+#ticHero .th-grid{position:absolute;inset:0;opacity:.5;background-image:linear-gradient(to right,#CBD3DA 1px,transparent 1px),linear-gradient(to bottom,#CBD3DA 1px,transparent 1px);background-size:48px 48px;}
+#ticHero .th-frame{position:absolute;inset:14px;border:1px solid rgba(0,168,255,.45);clip-path:polygon(0 22px,22px 0,calc(100% - 22px) 0,100% 22px,100% calc(100% - 22px),calc(100% - 22px) 100%,22px 100%,0 calc(100% - 22px));pointer-events:none;}
+#ticHero .th-br{position:absolute;width:26px;height:26px;border:2px solid #00A8FF;}
+#ticHero .th-br.tl{top:-1px;left:-1px;border-right:0;border-bottom:0;}
+#ticHero .th-br.tr{top:-1px;right:-1px;border-left:0;border-bottom:0;}
+#ticHero .th-br.bl{bottom:-1px;left:-1px;border-right:0;border-top:0;}
+#ticHero .th-br.br{bottom:-1px;right:-1px;border-left:0;border-top:0;}
+#ticHero .th-strip{position:absolute;top:22px;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;font-family:"Share Tech Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.14em;color:#2A2F36;z-index:3;}
+#ticHero .th-chip{color:#0a6b27;background:rgba(16,161,59,.12);border:1px solid rgba(16,161,59,.45);padding:1px 8px;border-radius:3px;}
+#ticHero .th-coord{color:#0059B3;}
+#ticHero .th-wrap{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:64px 28px 40px;display:grid;grid-template-columns:1fr;gap:26px;align-items:center;min-height:88vh;}
+#ticHero .th-globe-zone{order:1;}
+#ticHero .th-content{order:2;}
+@media(min-width:1024px){#ticHero .th-wrap{grid-template-columns:1fr 1fr;}#ticHero .th-globe-zone{order:2;}#ticHero .th-content{order:1;}}
+#ticHero #thGlobe{position:relative;width:100%;max-width:520px;aspect-ratio:1/1;margin:0 auto;}
+#ticHero #thGlobe canvas{display:block;}
+#ticHero #thGlobe img{width:100%;height:100%;object-fit:contain;}
+#ticHero .th-cap{text-align:center;margin-top:10px;}
+#ticHero .th-cap span{font-family:"Share Tech Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.14em;color:#0059B3;}
+#ticHero .th-lockup{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+#ticHero .th-govco{height:22px;width:auto;}
+#ticHero .th-gob{height:34px;width:auto;}
+#ticHero .th-sep{width:1px;height:24px;background:#CBD3DA;}
+#ticHero .th-dep{color:#4D4D4D;font-weight:500;font-size:15px;line-height:1.15;max-width:240px;}
+#ticHero .th-kicker{font-family:"Share Tech Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.25em;color:#0059B3;margin:0 0 14px;}
+#ticHero .th-h1{font-family:"Hind Madurai",sans-serif;font-weight:700;color:#0A2540;font-size:clamp(32px,5.4vw,58px);line-height:1.05;margin:0 0 16px;}
+#ticHero .th-sub{color:#2A2F36;font-size:clamp(15px,1.4vw,17px);line-height:1.5;max-width:60ch;margin:0 0 26px;}
+#ticHero .th-ctas{display:flex;flex-wrap:wrap;gap:14px;}
+#ticHero .th-cta{font-family:"Nunito Sans",system-ui,sans-serif;font-weight:700;font-size:15px;padding:13px 26px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);transition:transform .15s;}
+#ticHero .th-cta:hover{transform:scale(1.03);}
+#ticHero .th-primary{background:#0066CC;color:#fff;box-shadow:0 0 0 1px rgba(0,168,255,.7),0 0 22px rgba(0,168,255,.45);}
+#ticHero .th-ghost{color:#0A2540;border:1px solid rgba(0,168,255,.55);background:rgba(243,246,248,.6);}
+#ticHero .th-progress{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:min(420px,70%);}
+#ticHero .th-prow{display:flex;justify-content:space-between;font-family:"Share Tech Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.16em;color:#0059B3;margin-bottom:4px;}
+#ticHero .th-track{height:3px;background:#DCE2E7;}
+#ticHero .th-fill{height:100%;width:0%;background:linear-gradient(90deg,#00A8FF,#21D4FF);box-shadow:0 0 8px rgba(0,168,255,.6);}
+#ticHero .th-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+#ticHero .th-h1 .thw{display:inline-block;}
+@media(prefers-reduced-motion:reduce){#ticHero .th-h1 .thw,#ticHero .th-sub .thw{opacity:1!important;transform:none!important;}}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<script type="module">
+(async function(){
+  const ROOT=document.getElementById('ticHero'); if(!ROOT||ROOT.dataset.init)return; ROOT.dataset.init='1';
+  const MUNI=__MUNI__;            // GeoJSON oficial (64 municipios + contorno de respaldo)
+  const OUTLINE=__OUTLINE__;      // Contorno REAL del departamento (polilíneas [lon,lat])
+  const POSTER='https://tic.narino.gov.co/wp-content/uploads/2026/06/hero-plate-globe-narino.jpg';
+  const TEX=['https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg','https://cdn.jsdelivr.net/npm/three-globe@2.31.1/example/img/earth-blue-marble.jpg'];
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mount=document.getElementById('thGlobe'), fill=document.getElementById('thFill'), pct=document.getElementById('thPct');
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), easeIO=(t)=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, D=Math.PI/180;
+
+  // Texto: stagger por palabra (anime.js).
+  function split(el){const ws=el.textContent.trim().split(' ');el.textContent='';ws.forEach((w,i)=>{const s=document.createElement('span');s.className='thw';s.textContent=w;el.appendChild(s);if(i<ws.length-1)el.appendChild(document.createTextNode(' '));});return el.querySelectorAll('.thw');}
+  if(!reduce && window.anime){
+    const h=split(document.getElementById('thH1')), s=split(document.getElementById('thSub'));
+    anime.set([...h,...s],{opacity:0,translateY:'0.5em'}); anime.set('#thCtas',{opacity:0});
+    anime.timeline({easing:'easeOutQuad'})
+      .add({targets:h,opacity:[0,1],translateY:['0.5em','0em'],duration:600,delay:anime.stagger(55,{start:150})})
+      .add({targets:s,opacity:[0,1],translateY:['0.5em','0em'],duration:500,delay:anime.stagger(18)},'-=300')
+      .add({targets:'#thCtas',opacity:[0,1],duration:700},'-=150');
+  }
+
+  const prog={v:reduce?0.78:0};
+  function onScroll(){const r=ROOT.getBoundingClientRect();const p=clamp(-r.top/Math.max(1,r.height),0,1);prog.v=p;fill.style.width=(p*100).toFixed(1)+'%';pct.textContent=String(Math.round(p*100)).padStart(3,'0')+'%';}
+  window.addEventListener('scroll',()=>requestAnimationFrame(onScroll),{passive:true}); window.addEventListener('resize',onScroll); onScroll();
+
+  function poster(){const i=document.createElement('img');i.src=POSTER;i.alt='';i.setAttribute('aria-hidden','true');mount.appendChild(i);}
+  if(reduce){poster();return;}
+
+  let THREE; try{ THREE=await import('https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js'); }catch(e){ poster(); return; }
+  function llv(lon,lat,r){const phi=(90-lat)*D,th=(lon+180)*D;return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));}
+
+  let renderer; try{ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true}); }catch(e){ poster(); return; }
+  const W=mount.clientWidth||480,H=mount.clientHeight||480;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.8)); renderer.setSize(W,H);
+  renderer.domElement.setAttribute('aria-hidden','true'); renderer.domElement.style.touchAction='pan-y'; mount.appendChild(renderer.domElement);
+  const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(38,W/H,0.1,100); camera.position.set(0,0,3.25);
+  scene.add(new THREE.AmbientLight(0xffffff,0.55)); scene.add(new THREE.HemisphereLight(0xbfd4ff,0x14202e,0.28));
+  const sun=new THREE.DirectionalLight(0xffffff,1.15); sun.position.set(3,1.6,2.6); scene.add(sun);
+  const globe=new THREE.Group(); scene.add(globe);
+
+  // Tierra real (Blue Marble + fallback procedimental).
+  const earthMat=new THREE.MeshPhongMaterial({color:0x12324a,specular:0x2a3a52,shininess:16});
+  globe.add(new THREE.Mesh(new THREE.SphereGeometry(0.997,64,64),earthMat));
+  (function(){let done=false;const L=new THREE.TextureLoader();L.crossOrigin='anonymous';
+    const ap=(t)=>{if(done)return;if('SRGBColorSpace'in THREE)t.colorSpace=THREE.SRGBColorSpace;earthMat.map=t;earthMat.color=new THREE.Color(0xffffff);earthMat.needsUpdate=true;done=true;};
+    const proc=()=>{if(done)return;const cv=document.createElement('canvas');cv.width=2048;cv.height=1024;const cx=cv.getContext('2d');cx.fillStyle='#123a57';cx.fillRect(0,0,cv.width,cv.height);cx.fillStyle='#2f6f57';[[380,150,320,380],[560,470,210,360],[900,180,280,220],[950,380,360,400],[1180,180,560,380],[1600,560,200,150]].forEach(r=>{cx.beginPath();cx.ellipse(r[0]+r[2]/2,r[1]+r[3]/2,r[2]/2,r[3]/2,0,0,Math.PI*2);cx.fill();});const t=new THREE.CanvasTexture(cv);if('SRGBColorSpace'in THREE)t.colorSpace=THREE.SRGBColorSpace;ap(t);};
+    const tryi=(i)=>{if(done)return;if(i>=TEX.length){proc();return;}L.load(TEX[i],ap,undefined,()=>tryi(i+1));}; tryi(0); setTimeout(proc,6000);
+  })();
+
+  // Retícula tenue.
+  const gp=[];for(let lat=-60;lat<=60;lat+=30)for(let lon=-180;lon<180;lon+=6)gp.push(llv(lon,lat,1),llv(lon+6,lat,1));
+  for(let lon=-180;lon<180;lon+=30)for(let lat=-80;lat<80;lat+=6)gp.push(llv(lon,lat,1),llv(lon,lat+6,1));
+  globe.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(gp),new THREE.LineBasicMaterial({color:0xcbd3da,transparent:true,opacity:0.1})));
+
+  // Atmósfera fresnel.
+  const atmoMat=new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,depthWrite:false,uniforms:{uI:{value:0.5},uN:{value:new THREE.Color(0x00a8ff)},uB:{value:new THREE.Color(0x21d4ff)}},
+    vertexShader:'varying vec3 vN;varying vec3 vV;void main(){vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+    fragmentShader:'varying vec3 vN;varying vec3 vV;uniform float uI;uniform vec3 uN;uniform vec3 uB;void main(){float f=pow(1.-clamp(dot(vN,vV),0.,1.),3.);gl_FragColor=vec4(mix(uN,uB,f),f*uI);}'});
+  globe.add(new THREE.Mesh(new THREE.SphereGeometry(1.16,48,32),atmoMat));
+
+  // Puntos municipios (encendido progresivo).
+  const ptsMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uP:{value:0},uPR:{value:renderer.getPixelRatio()},uS:{value:220},uN:{value:new THREE.Color(0x00a8ff)},uB:{value:new THREE.Color(0x21d4ff)}},
+    vertexShader:'attribute float aT;varying float vT;uniform float uPR;uniform float uS;void main(){vT=aT;vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=uS*uPR/max(0.001,-mv.z);gl_Position=projectionMatrix*mv;}',
+    fragmentShader:'precision mediump float;varying float vT;uniform float uP;uniform vec3 uN;uniform vec3 uB;void main(){vec2 uv=gl_PointCoord-0.5;float d=length(uv);if(d>0.5)discard;float g=smoothstep(0.5,0.,d);float lit=smoothstep(vT-0.06,vT+0.06,uP);gl_FragColor=vec4(mix(uN,uB,lit),g*(0.16+0.84*lit));}'});
+
+  const st={pts:null,narino:null,marker:null,cen:new THREE.Vector3(0,0,1),tq:new THREE.Quaternion()};
+  function addLines(polys,color,opacity,radius){const p=[];for(const ln of polys)for(let i=0;i<ln.length-1;i++)p.push(llv(ln[i][0],ln[i][1],radius),llv(ln[i+1][0],ln[i+1][1],radius));if(!p.length)return null;const seg=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(p),new THREE.LineBasicMaterial({color,transparent:true,opacity}));globe.add(seg);return seg;}
+
+  const munis=(MUNI&&MUNI.features?MUNI.features.filter(f=>f.properties&&f.properties.kind==='municipio'&&f.geometry&&f.geometry.type==='Point').map(f=>({name:f.properties.name,capital:!!f.properties.capital,lon:f.geometry.coordinates[0],lat:f.geometry.coordinates[1]})):[]);
+  const rings=Array.isArray(OUTLINE)&&OUTLINE.length?OUTLINE:null;
+  const cen=new THREE.Vector3();let n=0;
+  if(rings){rings.forEach(r=>r.forEach(([lo,la])=>{cen.add(llv(lo,la,1));n++;}));}else{munis.forEach(m=>{cen.add(llv(m.lon,m.lat,1));n++;});}
+  if(n){cen.multiplyScalar(1/n).normalize();st.cen.copy(cen);} st.tq.setFromUnitVectors(st.cen.clone().normalize(),new THREE.Vector3(0,0,1));
+  if(rings)st.narino=addLines(rings,0x00a8ff,0,1.004);
+
+  let maxD=1e-4;const ds=munis.map(m=>{const d=llv(m.lon,m.lat,1).normalize().distanceTo(st.cen);maxD=Math.max(maxD,d);return d;});
+  const pos=new Float32Array(munis.length*3),thr=new Float32Array(munis.length);
+  munis.forEach((m,i)=>{const v=llv(m.lon,m.lat,1.012);pos[i*3]=v.x;pos[i*3+1]=v.y;pos[i*3+2]=v.z;thr[i]=0.16+0.62*(ds[i]/maxD);});
+  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));pg.setAttribute('aT',new THREE.BufferAttribute(thr,1));
+  st.pts=new THREE.Points(pg,ptsMat);globe.add(st.pts);
+
+  const cap=munis.find(m=>m.capital)||munis[0]||{lon:-77.28,lat:1.21};
+  const mDir=llv(cap.lon,cap.lat,1).normalize(),mPos=mDir.clone().multiplyScalar(1.02);
+  const mCore=new THREE.Mesh(new THREE.SphereGeometry(0.014,16,16),new THREE.MeshBasicMaterial({color:0x21d4ff}));mCore.position.copy(mPos);globe.add(mCore);
+  const mRing=new THREE.Mesh(new THREE.RingGeometry(0.022,0.03,40),new THREE.MeshBasicMaterial({color:0x00a8ff,transparent:true,opacity:0.7,side:THREE.DoubleSide,depthWrite:false}));mRing.position.copy(mPos);mRing.lookAt(mDir.clone().multiplyScalar(2));globe.add(mRing);
+  st.marker={core:mCore,ring:mRing};
+
+  const par={tx:0,ty:0,x:0,y:0};
+  renderer.domElement.addEventListener('pointermove',(e)=>{const r=renderer.domElement.getBoundingClientRect();par.tx=clamp((e.clientX-r.left)/r.width-0.5,-0.5,0.5)*0.5;par.ty=clamp((e.clientY-r.top)/r.height-0.5,-0.5,0.5)*0.35;});
+  let spin=0;const eul=new THREE.Euler(),sq=new THREE.Quaternion();
+  function loop(){requestAnimationFrame(loop);const p=clamp(prog.v,0,1),e=easeIO(p);
+    spin+=0.0016*(1-e*0.92);eul.set(par.y*0.25,spin,0,'YXZ');sq.setFromEuler(eul);globe.quaternion.copy(sq).slerp(st.tq,e);
+    par.x+=(par.tx-par.x)*0.06;par.y+=(par.ty-par.y)*0.06;
+    camera.position.z=3.25+(1.75-3.25)*e;camera.position.y=-0.06*e;camera.lookAt(0,0,0);
+    ptsMat.uniforms.uP.value=p;atmoMat.uniforms.uI.value=(0.5+0.85*e);
+    if(st.narino)st.narino.material.opacity=0.12+e*0.85;
+    if(st.marker){const tw=(performance.now()%2200)/2200;st.marker.ring.scale.setScalar(1+tw*2.4);st.marker.ring.material.opacity=(1-tw)*0.7*(0.45+0.55*e);}
+    renderer.render(scene,camera);}
+  loop();
+  new ResizeObserver(()=>{const w=mount.clientWidth,h=mount.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);ptsMat.uniforms.uPR.value=renderer.getPixelRatio();}).observe(mount);
+})();
+</script>
